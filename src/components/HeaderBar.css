@@ -1,0 +1,106 @@
+  /* src/components/HeaderBar.css */
+  .header-bar {
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+      background-color: rgb(0, 0, 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1rem;
+      box-sizing: border-box;
+      transition: height 0.3s ease;
+      width: 100%;
+      height: 80px; /* Adjust height for consistent styling */
+    }
+    
+    .home-button {
+      position: absolute;
+      left: 6vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    
+    .home-icon {
+      fill: white;
+      transition: fill 0.1s ease;
+      width: 48px;
+      height: 48px;
+      user-select: none; /* optional: prevent weird text highlighting */
+    }
+    
+    /* Hover: hot pink */
+    .home-button:hover .home-icon {
+      fill: #ff0059;
+    }
+    
+    /* Active (clicking): inverse color (bright aqua) */
+    .home-button:active .home-icon {
+      fill: #00ffa6;
+    }
+    
+    
+    .search-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-grow: 1;
+      max-width: 40%; /* Ensures search bar doesn't occupy too much space */
+    }
+    
+    .search-bar {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 9999px;
+      border: none;
+      outline: none;
+      text-align: center;
+      text-transform: uppercase;
+      color: #ff0080;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    /* Placeholder style */
+    .search-bar::placeholder {
+      color: #000000;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      transition: opacity 0.3s ease;
+    }
+    
+    /* When search bar is focused */
+    .search-bar:focus {
+      background-color: #00ffb3; /* Light grey background when focused */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+    }
+    
+    /* When focused, hide the placeholder */
+    .search-bar:focus::placeholder {
+      opacity: 0; /* Smoothly fades the placeholder out */
+    }
+    
+    
+    /* Adjust header height for different screen orientations */
+    @media (orientation: portrait) {
+      .header-bar {
+        height: 80px;
+      }
+      .search-container {
+        max-width: 60%; /* <-- was 40%, now 80% in portrait mode */
+      }
+    }
+    
+    @media (orientation: landscape) {
+      .header-bar {
+        height: 80px;
+      }
+    }
+  

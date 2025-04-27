@@ -1,0 +1,26 @@
+.footer-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: rgb(0, 0, 0);
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 80px;
+  z-index: 1000;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+/* Optional: if you want CSS hover too (but React already handles hover nicely) */
+.footer-link:hover {
+  color: #ff0059;
+}

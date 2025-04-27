@@ -1,0 +1,16 @@
+/* HomePagePattern.css */
+
+/* #ff4081
+#000000 */
+:root {
+    --colourprimary: #ff0059;
+    --coloursecondary: #000000;
+}
+
+.pattern-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+  

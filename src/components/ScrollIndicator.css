@@ -1,0 +1,76 @@
+.scroll-indicator {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.scroll-indicator.down {
+  bottom: 80px;
+}
+
+.scroll-indicator.up {
+  top: 80px;
+}
+
+.scroll-arrow {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  filter: invert(1);
+  mix-blend-mode: difference;
+  pointer-events: none;
+  animation: bounce 1.5s infinite;
+
+  /* 🧠 Add this shadow: */
+  filter: invert(1) drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+}
+
+/* Different rotation */
+.up-arrow {
+  transform: rotate(180deg);
+}
+
+/* Bounce animations */
+.scroll-indicator.down .scroll-arrow {
+  animation-name: bounceDown;
+}
+
+.scroll-indicator.up .scroll-arrow {
+  animation-name: bounceUp;
+}
+
+@keyframes bounceDown {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(8px);
+  }
+  60% {
+    transform: translateY(4px);
+  }
+}
+
+@keyframes bounceUp {
+  0%, 20%, 50%, 80%, 100% {
+    transform: rotate(180deg) translateY(0);
+  }
+  40% {
+    transform: rotate(180deg) translateY(-8px);
+  }
+  60% {
+    transform: rotate(180deg) translateY(-4px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
