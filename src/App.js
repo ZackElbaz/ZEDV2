@@ -3,7 +3,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import ContactPage from "./pages/ContactPage";
-import ProjectPage from "./pages/ProjectPage";
+import ProjectGlyphs from "./projects/ProjectGlyphs"; // ✅ updated import
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/project1" element={<ProjectPage title="Project 1" />} />
+        <Route path="/glyphs" element={<ProjectGlyphs />} /> {/* ✅ correct route */}
         {/* You can add more projects here */}
       </Routes>
     </Router>
