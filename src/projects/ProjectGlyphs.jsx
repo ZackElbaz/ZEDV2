@@ -731,9 +731,16 @@ function ProjectGlyphs() {
 
 
   useEffect(() => {
-    // Set initial placeholder media
-    setMediaType("image");
-    setMediaSource(`${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`);
+    const img = new Image();
+    img.onload = () => {
+      if (imageRef.current) {
+        imageRef.current.src = img.src;
+        setMediaType("image");
+        setMediaSource(img.src);
+        setNeedsUpdate(true);
+      }
+    };
+    img.src = `${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`;
   }, []);
 
   return (
