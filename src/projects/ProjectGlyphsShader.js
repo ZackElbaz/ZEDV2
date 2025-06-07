@@ -11,7 +11,12 @@ export function getShaders() {
   `;
 
   const fragmentShaderSource = `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
     precision mediump float;
+    #endif
+
     varying vec2 v_uv;
     uniform float u_pixelation;
     uniform sampler2D u_texture;
@@ -45,19 +50,20 @@ export function getShaders() {
         ? vec2(1.0, canAspect / texAspect)
         : vec2(texAspect / canAspect, 1.0);
       vec2 centeredUV = (v_uv - 0.5) / scale + 0.5;
-      vec2 pixelSize = vec2(1.0) / (u_pixelation * u_textureSize / min(u_textureSize.x, u_textureSize.y));
+
+      float dim = min(u_textureSize.x, u_textureSize.y);
+      vec2 pixelSize = vec2(1.0) / (u_pixelation * vec2(dim / u_textureSize.x, dim / u_textureSize.y));
       centeredUV = (floor(centeredUV / pixelSize) + 0.5) * pixelSize;
+      centeredUV = clamp(centeredUV, vec2(0.0), vec2(1.0));
+
       if (u_isWebcamFront == 1) {
         centeredUV.x = 1.0 - centeredUV.x;
       }
-      if (centeredUV.x < 0.0 || centeredUV.x > 1.0 || centeredUV.y < 0.0 || centeredUV.y > 1.0) {
-        discard;
-      } else {
-        vec3 color = applySharpen(vec2(centeredUV.x, 1.0 - centeredUV.y));
-        color = adjustContrast(color, u_contrast);
-        color = adjustSaturation(color, u_saturation);
-        gl_FragColor = vec4(color, 1.0);
-      }
+
+      vec3 color = applySharpen(vec2(centeredUV.x, 1.0 - centeredUV.y));
+      color = adjustContrast(color, u_contrast);
+      color = adjustSaturation(color, u_saturation);
+      gl_FragColor = vec4(color, 1.0);
     }
   `;
 
