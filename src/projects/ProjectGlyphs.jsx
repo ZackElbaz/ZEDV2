@@ -753,17 +753,34 @@ function ProjectGlyphs() {
   useEffect(() => {
     const img = new Image();
     img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const MAX_SIZE = 1600;
+      const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
+      const newWidth = img.width * scale;
+      const newHeight = img.height * scale;
+
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+      const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.8); // Compress as JPEG
+
       if (imageRef.current) {
         imageRef.current.onload = () => {
           setMediaType("image");
-          setMediaSource(img.src);
-          setNeedsUpdate(true); // ensures correct re-render
+          setMediaSource(jpegDataUrl);
+          setNeedsUpdate(true);
         };
-        imageRef.current.src = img.src;
+        imageRef.current.src = jpegDataUrl;
       }
     };
-    img.src = `${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`;
-  }, []);
+
+  // Load the original PNG source
+  img.src = `${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`;
+}, []);
+
 
 
   return (
