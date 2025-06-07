@@ -404,7 +404,8 @@ function HomePagePattern() {
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER,
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
       new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
       gl.STATIC_DRAW
     );
@@ -438,13 +439,24 @@ function HomePagePattern() {
     let touchStartX = 0;
     let touchStartY = 0;
     let isInteracting = false;
+    let isScrolling = false;
+    let interactionTimer = null;
 
     function handleTouchStart(e) {
       const touch = e.touches?.[0];
       if (!touch || e.target !== canvas) return;
+
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
       isInteracting = false;
+      isScrolling = false;
+
+      if (interactionTimer) clearTimeout(interactionTimer);
+      interactionTimer = setTimeout(() => {
+        if (!isScrolling) {
+          isInteracting = true;
+        }
+      }, 100); // Wait 100ms to decide
     }
 
     function handleTouchMove(e) {
@@ -454,8 +466,10 @@ function HomePagePattern() {
       const dx = touch.clientX - touchStartX;
       const dy = touch.clientY - touchStartY;
 
-      if (!isInteracting && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
-        isInteracting = true;
+      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
+        isScrolling = true;
+        isInteracting = false;
+        return; // let scroll proceed
       }
 
       if (isInteracting) {
@@ -477,11 +491,6 @@ function HomePagePattern() {
       canvas.height = height;
       gl.viewport(0, 0, width, height);
     }
-
-    window.addEventListener("mousemove", updateMouse);
-    window.addEventListener("resize", handleResize);
-    canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
-    canvas.addEventListener("touchmove", handleTouchMove, { passive: true });
 
     function render(timeMs) {
       const time = timeMs * 0.001;
@@ -508,6 +517,11 @@ function HomePagePattern() {
 
     requestAnimationFrame(render);
 
+    window.addEventListener("mousemove", updateMouse);
+    window.addEventListener("resize", handleResize);
+    canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
+    canvas.addEventListener("touchmove", handleTouchMove, { passive: true });
+
     return () => {
       window.removeEventListener("mousemove", updateMouse);
       window.removeEventListener("resize", handleResize);
@@ -520,4 +534,3 @@ function HomePagePattern() {
 }
 
 export default HomePagePattern;
-
