@@ -439,29 +439,56 @@ function HomePagePattern() {
     const secondaryColor = useRandomColors ? randomColorVec3() : cssColorToVec3("--coloursecondary");
 
     let mouse = [width / 2, height / 2];
+    let touchStartX = width / 2;
     let touchStartY = height / 2;
-
-    function updateMouse(e) {
-      const isTouch = e.type.startsWith("touch");
-      const x = isTouch ? e.touches?.[0]?.clientX ?? width / 2 : e.clientX ?? width / 2;
-      const y = isTouch ? touchStartY : e.clientY ?? height / 2;
-      mouse = [x, y];
-    }
+    let isInteracting = false;
 
     function setTouchStart(e) {
       const touch = e.touches?.[0];
       if (touch) {
+        touchStartX = touch.clientX;
         touchStartY = touch.clientY;
-        updateMouse(e);
+        isInteracting = false; // Reset for new gesture
+      }
+    }
+
+    function updateMouse(e) {
+      const isTouch = e.type.startsWith("touch");
+
+      if (isTouch) {
+        const touch = e.touches?.[0];
+        if (!touch) return;
+
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+
+        if (!isInteracting && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+          isInteracting = true;
+        }
+
+        if (isInteracting) {
+          mouse = [touch.clientX, touchStartY];
+        }
+      } else {
+        mouse = [
+          e.clientX ?? width / 2,
+          e.clientY ?? height / 2
+        ];
       }
     }
 
     window.addEventListener("mousemove", updateMouse);
     window.addEventListener("touchstart", setTouchStart);
     window.addEventListener("touchmove", updateMouse);
+    window.addEventListener("resize", handleResize);
 
-    const preventScroll = e => e.preventDefault();
-    canvas.removeEventListener("touchmove", preventScroll);
+    function handleResize() {
+      width = canvas.parentElement.offsetWidth;
+      height = canvas.parentElement.offsetHeight;
+      canvas.width = width;
+      canvas.height = height;
+      gl.viewport(0, 0, width, height);
+    }
 
     function render(timeMs) {
       const time = timeMs * 0.001;
@@ -489,22 +516,11 @@ function HomePagePattern() {
 
     requestAnimationFrame(render);
 
-    function handleResize() {
-      width = canvas.parentElement.offsetWidth;
-      height = canvas.parentElement.offsetHeight;
-      canvas.width = width;
-      canvas.height = height;
-      gl.viewport(0, 0, width, height);
-    }
-
-    window.addEventListener("resize", handleResize);
-
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", updateMouse);
       window.removeEventListener("touchstart", setTouchStart);
       window.removeEventListener("touchmove", updateMouse);
-      canvas.removeEventListener("touchmove", preventScroll);
     };
   }, []);
 
