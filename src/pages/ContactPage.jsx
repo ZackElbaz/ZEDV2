@@ -210,6 +210,8 @@ import LavaLampBackground from "../components/LavaLampBackground";
 import "./ContactPage.css";
 
 function ContactPage() {
+  const formFieldWidth = "60%";
+
   const headerRef = useRef(null);
   const footerRef = useRef(null);
   const layoutRef = useRef(null);
@@ -352,7 +354,7 @@ function ContactPage() {
                     placeholder="Name"
                     required
                     style={{
-                      width: "100%",
+                      width: formFieldWidth,
                       maxWidth: "500px",
                       padding: "10px"
                     }}
@@ -363,7 +365,7 @@ function ContactPage() {
                     placeholder="Your E-mail address"
                     required
                     style={{
-                      width: "100%",
+                      width: formFieldWidth,
                       maxWidth: "500px",
                       padding: "10px"
                     }}
@@ -373,7 +375,7 @@ function ContactPage() {
                     placeholder="Write your message here..."
                     required
                     style={{
-                      width: "60%",
+                      width: formFieldWidth,
                       maxWidth: "500px",
                       padding: "10px",
                       height: "150px"
