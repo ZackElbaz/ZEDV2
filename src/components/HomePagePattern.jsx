@@ -248,7 +248,10 @@
 // export default HomePagePattern;
 
 
-
+////////////////////////////////////////////
+// This code only uses "deliberate swiping" for the pattern movement so that its not glitchy when scrolling on touch. 
+// it might be tooooo aggressive on the filtering for "deliberateness" this value might need tweaking
+////////////////////////////////////////////
 import React, { useEffect, useRef } from "react";
 import "./HomePagePattern.css";
 

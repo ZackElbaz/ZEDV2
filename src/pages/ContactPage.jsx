@@ -373,7 +373,7 @@ function ContactPage() {
                     placeholder="Write your message here..."
                     required
                     style={{
-                      width: "100%",
+                      width: "60%",
                       maxWidth: "500px",
                       padding: "10px",
                       height: "150px"
