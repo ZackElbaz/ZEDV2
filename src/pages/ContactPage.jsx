@@ -387,7 +387,6 @@ function ContactPage() {
                     style={{
                       width: buttonWidth,
                       padding: "10px 20px",
-                      fontSize: "1rem"
                     }}
                   >
                     Send Message
