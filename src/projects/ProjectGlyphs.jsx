@@ -733,7 +733,7 @@ function ProjectGlyphs() {
   useEffect(() => {
     // Set initial placeholder media
     setMediaType("image");
-    setMediaSource("/SkyWhales_Noracored.png");
+    setMediaSource(`${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`);
   }, []);
 
   return (
