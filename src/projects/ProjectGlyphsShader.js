@@ -222,21 +222,25 @@ export function getShaders() {
       vec2 scale = (texAspect > canAspect)
         ? vec2(1.0, canAspect / texAspect)
         : vec2(texAspect / canAspect, 1.0);
-      vec2 centeredUV = (v_uv - 0.5) / scale + 0.5;
+      vec2 scaledUV = (v_uv - 0.5) / scale + 0.5;
 
-      // Use canvas resolution to compute square pixel size
-      float pixelSize = 1.0 / u_pixelation;
-      vec2 canvasRatio = vec2(u_canvasSize.x / u_canvasSize.y, 1.0);
-      vec2 adjustedPixelSize = vec2(pixelSize) / canvasRatio;
-
-      centeredUV = (floor(centeredUV / adjustedPixelSize) + 0.5) * adjustedPixelSize;
-      centeredUV = clamp(centeredUV, vec2(0.0), vec2(1.0));
-
-      if (u_isWebcamFront == 1) {
-        centeredUV.x = 1.0 - centeredUV.x;
+      // Clamp to texture bounds
+      if (scaledUV.x < 0.0 || scaledUV.x > 1.0 || scaledUV.y < 0.0 || scaledUV.y > 1.0) {
+        discard;
       }
 
-      vec3 color = applySharpen(vec2(centeredUV.x, 1.0 - centeredUV.y));
+      // Ensure pixel blocks are square in UV space
+      float minCanvasDim = min(u_canvasSize.x, u_canvasSize.y);
+      float pixelSize = u_pixelation / minCanvasDim;
+      vec2 pixelSizeUV = vec2(pixelSize);
+      vec2 blockUV = (floor(scaledUV / pixelSizeUV) + 0.5) * pixelSizeUV;
+
+      // Optional mirroring for front-facing webcam
+      if (u_isWebcamFront == 1) {
+        blockUV.x = 1.0 - blockUV.x;
+      }
+
+      vec3 color = applySharpen(vec2(blockUV.x, 1.0 - blockUV.y));
       color = adjustContrast(color, u_contrast);
       color = adjustSaturation(color, u_saturation);
       gl_FragColor = vec4(color, 1.0);
@@ -342,7 +346,6 @@ export function setupWebGLRenderer({
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    if (mediaType !== "video" && mediaType !== "webcam") setNeedsUpdate(false);
     rafId = requestAnimationFrame(renderLoop);
   };
 
