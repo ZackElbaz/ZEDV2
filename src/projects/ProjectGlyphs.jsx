@@ -536,7 +536,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
-import { setupWebGLRenderer } from "../utils/ProjectGlyphsShader";
+import { setupWebGLRenderer } from "./ProjectGlyphsShader";
 
 function ProjectGlyphs() {
   const [headerHeight] = useState(80);
