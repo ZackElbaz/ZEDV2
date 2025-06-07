@@ -385,8 +385,14 @@ function ContactPage() {
                   <button
                     type="submit"
                     style={{
-                      width: buttonWidth,
+                      width: formFieldWidth,
+                      maxWidth: maxFieldWidth,
                       padding: "10px 20px",
+                      fontSize: "1rem",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      textAlign: "center"
                     }}
                   >
                     Send Message
