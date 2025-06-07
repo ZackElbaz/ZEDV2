@@ -224,12 +224,12 @@ export function getShaders() {
         : vec2(texAspect / canAspect, 1.0);
       vec2 centeredUV = (v_uv - 0.5) / scale + 0.5;
 
-      float minDim = min(u_textureSize.x, u_textureSize.y);
-      float px = u_pixelation;
-      vec2 pixelCount = vec2(px);
-      vec2 pixelSize = vec2(1.0 / px);
+      // Use canvas resolution to compute square pixel size
+      float pixelSize = 1.0 / u_pixelation;
+      vec2 canvasRatio = vec2(u_canvasSize.x / u_canvasSize.y, 1.0);
+      vec2 adjustedPixelSize = vec2(pixelSize) / canvasRatio;
 
-      centeredUV = (floor(centeredUV / pixelSize) + 0.5) * pixelSize;
+      centeredUV = (floor(centeredUV / adjustedPixelSize) + 0.5) * adjustedPixelSize;
       centeredUV = clamp(centeredUV, vec2(0.0), vec2(1.0));
 
       if (u_isWebcamFront == 1) {
