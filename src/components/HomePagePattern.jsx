@@ -249,7 +249,6 @@
 
 
 
-// File: src/pages/HomePage.jsx
 import React, { useEffect, useRef } from "react";
 import "./HomePagePattern.css";
 
@@ -439,48 +438,41 @@ function HomePagePattern() {
     const secondaryColor = useRandomColors ? randomColorVec3() : cssColorToVec3("--coloursecondary");
 
     let mouse = [width / 2, height / 2];
-    let touchStartX = width / 2;
-    let touchStartY = height / 2;
+    let touchStartX = 0;
+    let touchStartY = 0;
     let isInteracting = false;
 
-    function setTouchStart(e) {
+    function handleTouchStart(e) {
       const touch = e.touches?.[0];
-      if (touch) {
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        isInteracting = false; // Reset for new gesture
+      if (!touch || e.target !== canvas) return;
+
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      isInteracting = false;
+    }
+
+    function handleTouchMove(e) {
+      const touch = e.touches?.[0];
+      if (!touch || e.target !== canvas) return;
+
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+
+      if (!isInteracting && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+        isInteracting = true;
+      }
+
+      if (isInteracting) {
+        mouse = [touch.clientX, touchStartY];
       }
     }
 
     function updateMouse(e) {
-      const isTouch = e.type.startsWith("touch");
-
-      if (isTouch) {
-        const touch = e.touches?.[0];
-        if (!touch) return;
-
-        const dx = touch.clientX - touchStartX;
-        const dy = touch.clientY - touchStartY;
-
-        if (!isInteracting && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
-          isInteracting = true;
-        }
-
-        if (isInteracting) {
-          mouse = [touch.clientX, touchStartY];
-        }
-      } else {
-        mouse = [
-          e.clientX ?? width / 2,
-          e.clientY ?? height / 2
-        ];
-      }
+      mouse = [
+        e.clientX ?? width / 2,
+        e.clientY ?? height / 2
+      ];
     }
-
-    window.addEventListener("mousemove", updateMouse);
-    window.addEventListener("touchstart", setTouchStart);
-    window.addEventListener("touchmove", updateMouse);
-    window.addEventListener("resize", handleResize);
 
     function handleResize() {
       width = canvas.parentElement.offsetWidth;
@@ -489,6 +481,11 @@ function HomePagePattern() {
       canvas.height = height;
       gl.viewport(0, 0, width, height);
     }
+
+    window.addEventListener("mousemove", updateMouse);
+    window.addEventListener("resize", handleResize);
+    canvas.addEventListener("touchstart", handleTouchStart, { passive: true });
+    canvas.addEventListener("touchmove", handleTouchMove, { passive: true });
 
     function render(timeMs) {
       const time = timeMs * 0.001;
@@ -507,20 +504,19 @@ function HomePagePattern() {
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform2fv(mouseLocation, mouse);
       gl.uniform3fv(primaryLocation, primaryColor);
-      gl.uniform3fv(secondaryLocation, secondaryColor);
+      gl.uniform3fv(secondaryColor, secondaryColor);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-
       requestAnimationFrame(render);
     }
 
     requestAnimationFrame(render);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", updateMouse);
-      window.removeEventListener("touchstart", setTouchStart);
-      window.removeEventListener("touchmove", updateMouse);
+      window.removeEventListener("resize", handleResize);
+      canvas.removeEventListener("touchstart", handleTouchStart);
+      canvas.removeEventListener("touchmove", handleTouchMove);
     };
   }, []);
 
@@ -528,3 +524,4 @@ function HomePagePattern() {
 }
 
 export default HomePagePattern;
+
