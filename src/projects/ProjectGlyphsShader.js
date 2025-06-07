@@ -163,7 +163,7 @@ export function setupWebGLRenderer({
     gl.uniform1f(u_contrast, contrast);
     gl.uniform1f(u_sharpness, sharpness);
     gl.uniform1f(u_saturation, saturation);
-    const pixelationScale = 2.0; // try 2.0 or higher to exaggerate the effect
+    const pixelationScale = 10.0; // try 2.0 or higher to exaggerate the effect
     gl.uniform1f(u_pixelation, Math.max(1.0, pixelation * pixelationScale));
 
 
