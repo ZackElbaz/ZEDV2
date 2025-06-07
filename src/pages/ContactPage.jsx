@@ -211,8 +211,8 @@ import "./ContactPage.css";
 
 function ContactPage() {
   const formFieldWidth = "60%";
-  const buttonWidth = `${(parseFloat(formFieldWidth) * 2) / 3}%`; // "40%"
-  
+  const buttonWidth = `${(parseFloat(formFieldWidth) * 4) / 5}%`; // "40%"
+
   const headerRef = useRef(null);
   const footerRef = useRef(null);
   const layoutRef = useRef(null);
