@@ -229,13 +229,12 @@ export function getShaders() {
         discard;
       }
 
-      // Ensure pixel blocks are square in UV space
-      float minCanvasDim = min(u_canvasSize.x, u_canvasSize.y);
-      float pixelSize = u_pixelation / minCanvasDim;
+      // Ensure pixel blocks are square based on texture size, not canvas
+      float minTexDim = min(u_textureSize.x, u_textureSize.y);
+      float pixelSize = u_pixelation / minTexDim;
       vec2 pixelSizeUV = vec2(pixelSize);
       vec2 blockUV = (floor(scaledUV / pixelSizeUV) + 0.5) * pixelSizeUV;
 
-      // Optional mirroring for front-facing webcam
       if (u_isWebcamFront == 1) {
         blockUV.x = 1.0 - blockUV.x;
       }
