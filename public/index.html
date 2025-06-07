@@ -1,21 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script>
-      // Prevent scroll-to-element behavior on page load when using hash routing
-      window.addEventListener("DOMContentLoaded", () => {
-        if (location.hash) {
-          // Save the current hash
-          const savedHash = location.hash;
-          // Temporarily remove the hash to prevent scrolling
-          history.replaceState(null, "", location.pathname + location.search);
-          // Scroll to top
-          window.scrollTo(0, 0);
-          // Restore the hash so routing still works
-          history.replaceState(null, "", location.pathname + location.search + savedHash);
-        }
-      });
-    </script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
