@@ -165,12 +165,17 @@ export function setupWebGLRenderer({
     gl.uniform1f(u_saturation, saturation);
         // NEW PIXELATION MAPPING (0–100 slider -> block size)
     const maxDim = Math.max(texWidth, texHeight);
-    const minPixelsPerSide = maxDim / 2.0;
-    const maxPixelsPerSide = maxDim;
 
-    const desiredPixels = minPixelsPerSide + (maxPixelsPerSide - minPixelsPerSide) * (pixelation / 100);
-    const effectiveBlockSize = maxDim / desiredPixels;
-    gl.uniform1f(u_pixelation, effectiveBlockSize);
+    // Desired number of blocks on the longest side:
+    //  - 0 → maxDim / 2 blocks
+    //  - 100 → 1 block
+    const blocksLongSide = (maxDim / 2) * (1.0 - pixelation / 100) + 1;
+
+    // Convert block count to block size in texels:
+    const pixelSize = maxDim / blocksLongSide;
+
+    gl.uniform1f(u_pixelation, pixelSize);
+
 
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
