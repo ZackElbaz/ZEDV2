@@ -203,10 +203,12 @@ export function getShaders() {
     vec3 adjustContrast(vec3 color, float contrast) {
       return (color - 0.5) * contrast + 0.5;
     }
+
     vec3 adjustSaturation(vec3 color, float saturation) {
       float grey = dot(color, vec3(0.299, 0.587, 0.114));
       return mix(vec3(grey), color, saturation);
     }
+
     vec3 applySharpen(vec2 uv) {
       vec2 texel = 1.0 / u_textureSize;
       vec3 color = texture2D(u_texture, uv).rgb * (1.0 + 4.0 * u_sharpness);
@@ -216,6 +218,7 @@ export function getShaders() {
       color -= texture2D(u_texture, uv - vec2(0, texel.y)).rgb * u_sharpness;
       return color;
     }
+
     void main() {
       float texAspect = u_textureSize.x / u_textureSize.y;
       float canAspect = u_canvasSize.x / u_canvasSize.y;
@@ -224,12 +227,10 @@ export function getShaders() {
         : vec2(texAspect / canAspect, 1.0);
       vec2 scaledUV = (v_uv - 0.5) / scale + 0.5;
 
-      // Clamp to texture bounds
       if (scaledUV.x < 0.0 || scaledUV.x > 1.0 || scaledUV.y < 0.0 || scaledUV.y > 1.0) {
         discard;
       }
 
-      // Ensure pixel blocks are square based on texture size, not canvas
       float minTexDim = min(u_textureSize.x, u_textureSize.y);
       float pixelSize = u_pixelation / minTexDim;
       vec2 pixelSizeUV = vec2(pixelSize);
@@ -344,6 +345,9 @@ export function setupWebGLRenderer({
     gl.uniform1f(u_pixelation, pixelation);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    // Ensure updates for static images
+    if (mediaType !== "video" && mediaType !== "webcam") setNeedsUpdate(false);
 
     rafId = requestAnimationFrame(renderLoop);
   };
