@@ -683,22 +683,41 @@ function ProjectGlyphs() {
   }, [mediaSource, mediaType]);
 
   useEffect(() => {
-    if (!canvasRef.current || (!mediaSource && mediaType !== "webcam")) return;
-    const stopRendering = setupWebGLRenderer({
-      canvas: canvasRef.current,
-      imageRef,
-      videoRef,
-      webcamRef,
-      mediaType,
-      contrast,
-      sharpness,
-      saturation,
-      needsUpdate,
-      pixelation,
-      isFrontFacing,
-      setNeedsUpdate,
-    });
-    return () => stopRendering?.();
+    if (!canvasRef.current) return;
+
+    const runRenderer = () => {
+      const stopRendering = setupWebGLRenderer({
+        canvas: canvasRef.current,
+        imageRef,
+        videoRef,
+        webcamRef,
+        mediaType,
+        contrast,
+        sharpness,
+        saturation,
+        needsUpdate,
+        pixelation,
+        isFrontFacing,
+        setNeedsUpdate,
+      });
+      return () => stopRendering?.();
+    };
+
+    if (mediaType === "image" && imageRef.current?.complete) {
+      return runRenderer();
+    }
+
+    if (mediaType === "image") {
+      const img = imageRef.current;
+      const onLoad = () => runRenderer();
+      img.addEventListener("load", onLoad, { once: true });
+      return () => img.removeEventListener("load", onLoad);
+    }
+
+    if (mediaType === "video" || mediaType === "webcam") {
+      return runRenderer();
+    }
+
   }, [
     mediaSource,
     mediaType,
@@ -709,6 +728,7 @@ function ProjectGlyphs() {
     pixelation,
     isFrontFacing,
   ]);
+
 
   useEffect(() => {
     // Set initial placeholder media
