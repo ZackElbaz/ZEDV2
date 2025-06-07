@@ -163,9 +163,12 @@ export function setupWebGLRenderer({
     gl.uniform1f(u_contrast, contrast);
     gl.uniform1f(u_sharpness, sharpness);
     gl.uniform1f(u_saturation, saturation);
-    const pixelationScale = 10.0; // try 2.0 or higher to exaggerate the effect
-    gl.uniform1f(u_pixelation, Math.max(1.0, pixelation * pixelationScale));
-
+        // NEW PIXELATION MAPPING (0–100 slider -> block size)
+    const maxDim = Math.max(texWidth, texHeight);
+    const minBlockSize = maxDim / 2.0;
+    const maxBlockSize = maxDim;
+    const effectiveBlockSize = minBlockSize + (maxBlockSize - minBlockSize) * (pixelation / 100);
+    gl.uniform1f(u_pixelation, effectiveBlockSize);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
