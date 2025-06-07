@@ -750,11 +750,25 @@ function ProjectGlyphs() {
         <div style={{ maxWidth: "900px", margin: "0 auto", padding: "40px 20px", fontFamily: "sans-serif", color: "#222" }}>
           <h2>
             This project is inspired by{" "}
-            <a href="https://www.instagram.com/p/DAb7eYAx8q3/" target="_blank" rel="noopener noreferrer">@the.well.tarot</a>
+            <a
+              href="https://www.instagram.com/p/DAb7eYAx8q3/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @the.well.tarot
+            </a>
           </h2>
           <p style={{ lineHeight: "1.6" }}>
-            This project explores photomosaics — images built from smaller component images (or “glyphs”). Each glyph is chosen to match the color or intensity of a region of the source image.
+            This project explores photomosaics — images built from smaller component images (or “glyphs”). Each glyph is chosen to match the color or intensity of a region of the source image. See below an example of this using artwork provided by{" "}
+            <a
+              href="https://www.instagram.com/noracored/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @Noracored
+            </a>.
           </p>
+
 
           <div style={{ marginTop: "2rem" }}>
             <strong>Select media source:</strong>
