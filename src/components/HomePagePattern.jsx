@@ -461,7 +461,7 @@ function HomePagePattern() {
     window.addEventListener("touchmove", updateMouse);
 
     const preventScroll = e => e.preventDefault();
-    canvas.addEventListener("touchmove", preventScroll, { passive: false });
+    canvas.removeEventListener("touchmove", preventScroll);
 
     function render(timeMs) {
       const time = timeMs * 0.001;
