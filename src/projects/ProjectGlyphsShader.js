@@ -169,12 +169,13 @@ export function setupWebGLRenderer({
 
     // Exponentially remap slider value (0–100) to [0, 1] range
     const t = pixelation / 100;
-    const nonlinearT = Math.pow(t, 2.2); // Try 2.0–3.0 for stronger nonlinearity
+    // Apply inverse exponential easing to t
+    const easedT = 1.0 - Math.pow(1.0 - t, 2.2);
 
     // Interpolate between min and max number of blocks
     const minBlocks = maxDim / 2; // fine detail (slider = 0)
     const maxBlocks = 1;          // single block (slider = 100)
-    const blocksLongSide = minBlocks * (1.0 - nonlinearT) + maxBlocks * nonlinearT;
+    const blocksLongSide = minBlocks * (1.0 - easedT) + maxBlocks * easedT;
 
     // Convert to pixel size
     const pixelSize = maxDim / blocksLongSide;
