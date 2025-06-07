@@ -201,7 +201,7 @@
 
 
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useState, useRef } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
 import ScrollIndicator from "../components/ScrollIndicator";
@@ -220,20 +220,23 @@ function ContactPage() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [footerHeight, setFooterHeight] = useState(0);
   const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
+  const [sectionHeight, setSectionHeight] = useState(window.innerHeight);
 
   const updateLayout = () => {
     if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
     if (footerRef.current) setFooterHeight(footerRef.current.offsetHeight);
     setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
+
+    const layoutHeight = layoutRef.current?.clientHeight || window.innerHeight;
+    const visibleHeight = layoutHeight - (headerRef.current?.offsetHeight || 0) - (footerRef.current?.offsetHeight || 0);
+    setSectionHeight(visibleHeight / 3);
   };
 
-  useEffect(() => {
-    setTimeout(updateLayout, 50);
+  useLayoutEffect(() => {
+    updateLayout();
     window.addEventListener("resize", updateLayout);
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
-
-  const sectionHeight = window.innerHeight - headerHeight - footerHeight;
 
   const sections = [
     { id: 1, label: "About Me", className: "section-1" },
@@ -295,7 +298,7 @@ function ContactPage() {
                   <h3 className="contact-title">Who I am:</h3>
                   <h2>Zack El-baz</h2>
                   <p>
-                    Application Engineer at{" "}
+                    Application Engineer at {" "}
                     <a
                       href="https://www.volklec.com"
                       target="_blank"
@@ -356,7 +359,7 @@ function ContactPage() {
                     required
                     style={{
                       width: formFieldWidth,
-                      maxWidth: "500px",
+                      maxWidth: maxFieldWidth,
                       padding: "10px"
                     }}
                   />
@@ -367,7 +370,7 @@ function ContactPage() {
                     required
                     style={{
                       width: formFieldWidth,
-                      maxWidth: "500px",
+                      maxWidth: maxFieldWidth,
                       padding: "10px"
                     }}
                   />
@@ -377,7 +380,7 @@ function ContactPage() {
                     required
                     style={{
                       width: formFieldWidth,
-                      maxWidth: "500px",
+                      maxWidth: maxFieldWidth,
                       padding: "10px",
                       height: "150px"
                     }}
