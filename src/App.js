@@ -7,8 +7,15 @@ import ProjectGlyphs from "./projects/ProjectGlyphs";
 
 function App() {
   useEffect(() => {
-    window.scrollTo(0, 0); // Forces top on initial load
+    // Disable scroll restoration on refresh
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    // Force scroll to top
+    window.scrollTo(0, 0);
   }, []);
+
   return (
     <Router>
       <ScrollToTop />
@@ -22,5 +29,6 @@ function App() {
 }
 
 export default App;
+
 
 
