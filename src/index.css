@@ -1,10 +1,40 @@
+:root {
+  --font-main: 'JetBrains Mono', monospace; /* ✅ Define global variable */
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'JetBrains Mono', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ✅ Apply font to placeholders */
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--font-main);
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  color: #000000;
+  opacity: 0.8;
+}
+
+/* ✅ Apply font to typed input and textareas */
+input,
+textarea {
+  font-family: var(--font-main);
+}
+
+/* ✅ Apply font to all buttons */
+button {
+  font-family: var(--font-main);
+  text-transform: uppercase; /* Optional: for a bold, codey look */
+  font-weight: bold;
+}
+
+html, body {
+  font-family: var(--font-main);
 }
 
 code {

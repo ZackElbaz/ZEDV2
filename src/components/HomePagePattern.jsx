@@ -1,3 +1,4 @@
+// // File: src/pages/HomePage.jsx
 import React, { useEffect, useRef } from "react";
 import "./HomePagePattern.css";
 
@@ -5,6 +6,9 @@ function HomePagePattern() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    const useRandomColors = true; // ← Change to false to use CSS-defined colors
+    const randomSeed = Math.random() * 1000.0;
+
     const canvas = canvasRef.current;
     const gl = canvas.getContext('webgl');
     if (!gl) {
@@ -31,6 +35,7 @@ function HomePagePattern() {
       precision highp float;
       varying vec2 v_uv;
       uniform float u_time;
+      uniform float u_seed;
       uniform vec2 u_resolution;
       uniform vec2 u_mouse;
       uniform vec3 u_primary;
@@ -110,13 +115,12 @@ function HomePagePattern() {
         uv += normalize(uv) * dist * 0.6;
 
         float scale = 0.35;
-        float n = snoise(vec3(uv * scale, u_time * 0.05));
+        float n = snoise(vec3(uv * scale + u_seed, u_time * 0.05));
 
         float bands = 10.0;
         float band = floor((n + 1.0) / 2.0 * bands);
 
         vec3 color = mod(band, 2.0) < 1.0 ? u_primary : u_secondary;
-    
         gl_FragColor = vec4(color, 1.0);
       }
     `;
@@ -154,14 +158,7 @@ function HomePagePattern() {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Float32Array([
-        -1, -1,
-         1, -1,
-        -1,  1,
-        -1,  1,
-         1, -1,
-         1,  1,
-      ]),
+      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
       gl.STATIC_DRAW
     );
 
@@ -171,6 +168,7 @@ function HomePagePattern() {
     const mouseLocation = gl.getUniformLocation(program, "u_mouse");
     const primaryLocation = gl.getUniformLocation(program, "u_primary");
     const secondaryLocation = gl.getUniformLocation(program, "u_secondary");
+    const seedLocation = gl.getUniformLocation(program, "u_seed");
 
     function cssColorToVec3(cssVar) {
       const hex = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim().replace("#", "");
@@ -182,8 +180,12 @@ function HomePagePattern() {
       ];
     }
 
-    const primaryColor = cssColorToVec3("--colourprimary");
-    const secondaryColor = cssColorToVec3("--coloursecondary");
+    function randomColorVec3() {
+      return [Math.random(), Math.random(), Math.random()];
+    }
+
+    const primaryColor = useRandomColors ? randomColorVec3() : cssColorToVec3("--colourprimary");
+    const secondaryColor = useRandomColors ? randomColorVec3() : cssColorToVec3("--coloursecondary");
 
     let mouse = [width / 2, height / 2];
 
@@ -210,6 +212,7 @@ function HomePagePattern() {
       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
       gl.uniform1f(timeLocation, time);
+      gl.uniform1f(seedLocation, randomSeed);
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform2fv(mouseLocation, mouse);
       gl.uniform3fv(primaryLocation, primaryColor);

@@ -3,9 +3,9 @@ import React, { useEffect, useState, useRef } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
 import HomePagePattern from "../components/HomePagePattern";
-import HomePageProject from "../components/HomePageProject"; // <- new import
+import HomePageProject from "../components/HomePageProject";
 import ScrollIndicator from "../components/ScrollIndicator";
-import "./HomePage.css"; // optional
+import "./HomePage.css";
 
 function HomePage() {
   const [headerHeight, setHeaderHeight] = useState(80);
@@ -22,7 +22,6 @@ function HomePage() {
   useEffect(() => {
     updateHeights();
     window.addEventListener("resize", updateHeights);
-
     return () => {
       window.removeEventListener("resize", updateHeights);
     };
@@ -37,7 +36,7 @@ function HomePage() {
         <div style={{ width: "100%", height: singleSectionHeight, position: "relative" }}>
           <HomePagePattern />
           <img
-            src="/LogoSVG.svg"
+            src={process.env.PUBLIC_URL + "/LogoSVG.svg"}
             className="inverting-logo"
             alt="Logo Inverting"
             style={{
@@ -47,6 +46,7 @@ function HomePage() {
               transform: "translate(-50%, -50%)",
               width: "90%",
               height: "auto",
+              maxHeight: "60%", // Constrain logo to 75% of pattern area height
               filter: "invert(1)",
               mixBlendMode: "difference",
               pointerEvents: "none",
@@ -54,22 +54,23 @@ function HomePage() {
             }}
           />
         </div>
-  
+
         {/* Project section */}
         <div style={{ width: "100%", height: singleSectionHeight, backgroundColor: "transparent" }}>
           <HomePageProject />
         </div>
-  
+
         {/* Spacer for footer */}
         <div style={{ width: "100%", height: `${footerHeight}px` }} />
       </div>
       <FooterBar ref={footerRef} />
-  
-      {/* Add scroll indicator here */}
-      <ScrollIndicator />
+
+      {/* Pass PUBLIC_URL so ScrollIndicator can use it for images */}
+      <ScrollIndicator publicUrl={process.env.PUBLIC_URL} />
     </div>
   );
-  
 }
 
 export default HomePage;
+
+// npm run build && npm run deploy

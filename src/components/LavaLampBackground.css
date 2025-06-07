@@ -1,0 +1,139 @@
+.lava-lamp {
+  position: absolute;
+  top: 0; /* overridden via inline style from props */
+  bottom: 0; /* overridden via inline style from props */
+  left: 0;
+  right: 0;
+  z-index: 0; /* sits behind other content */
+  overflow: hidden;
+  pointer-events: none; /* ensures background doesn't block interaction */
+  background-color: black;
+}
+
+.lava {
+  filter: url("#goo");
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.blob {
+  border-radius: 50%;
+  background-image: linear-gradient(-206deg, #ff0059 0%, #ff0059 100%);
+  position: absolute;
+}
+
+/* Top and bottom blobs for smooth edge overflow */
+.blob.top {
+  width: 100%;
+  height: 4%;
+  top: -3%;
+  left: 0;
+}
+
+.blob.bottom {
+  width: 100%;
+  height: 4.5%;
+  bottom: -3%;
+  left: 0;
+}
+
+/* Individual blobs with animation */
+.blob:nth-child(1) {
+  width: 200px;
+  height: 200px;
+  left: 35%;
+  bottom: -15%;
+  animation: wobble 4s ease-in-out alternate infinite,
+             blob-one 18s ease-in-out infinite;
+}
+.blob:nth-child(2) {
+  width: 330px;
+  height: 330px;
+  right: 24%;
+  bottom: -65%;
+  animation: wobble 5s ease-in-out alternate infinite,
+             blob-two 22s ease-in-out infinite;
+}
+.blob:nth-child(3) {
+  width: 150px;
+  height: 150px;
+  left: 34%;
+  bottom: -15%;
+  animation: wobble 6s ease-in-out alternate infinite,
+             blob-three 16s ease-in-out infinite;
+}
+.blob:nth-child(4) {
+  width: 235px;
+  height: 235px;
+  left: 30%;
+  bottom: -19%;
+  animation: wobble 8s ease-in-out alternate infinite,
+             blob-four 16s ease-in-out infinite;
+}
+.blob:nth-child(5) {
+  width: 55px;
+  height: 55px;
+  left: 34%;
+  bottom: -25%;
+  animation: wobble 9s ease-in-out alternate infinite,
+             blob-five 32s ease-in-out infinite;
+}
+.blob:nth-child(6) {
+  width: 35px;
+  height: 35px;
+  right: 34%;
+  bottom: -25%;
+  animation: wobble 10s ease-in-out alternate infinite,
+             blob-six 12s ease-in-out infinite;
+}
+.blob:nth-child(7) {
+  width: 435px;
+  height: 435px;
+  right: 40%;
+  bottom: -85%;
+  animation: wobble 11s ease-in-out alternate infinite,
+             blob-seven 32s ease-in-out infinite;
+}
+
+/* Lava movement keyframes */
+@keyframes blob-one {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-600%); }
+}
+@keyframes blob-two {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-420%); }
+}
+@keyframes blob-three {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-305%); }
+}
+@keyframes blob-four {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-465%); }
+}
+@keyframes blob-five {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-700%); }
+}
+@keyframes blob-six {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-700%); }
+}
+@keyframes blob-seven {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-300%); }
+}
+
+/* Wobble morphing keyframe */
+@keyframes wobble {
+  50% {
+    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+  }
+  100% {
+    border-radius: 38% 52% 75% 36% / 50% 40% 50% 60%;
+  }
+}

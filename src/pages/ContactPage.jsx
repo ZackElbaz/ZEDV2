@@ -1,102 +1,399 @@
+// import React, { useEffect, useState, useRef } from "react";
+// import HeaderBar from "../components/HeaderBar";
+// import FooterBar from "../components/FooterBar";
+// import ScrollIndicator from "../components/ScrollIndicator";
+// import OpenMap from "../components/OpenMap";
+// import LavaLampBackground from "../components/LavaLampBackground";
+// import "./ContactPage.css";
+
+// function ContactPage() {
+//   const headerRef = useRef(null);
+//   const footerRef = useRef(null);
+//   const layoutRef = useRef(null);
+
+//   const [headerHeight, setHeaderHeight] = useState(0);
+//   const [footerHeight, setFooterHeight] = useState(0);
+//   const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
+
+//   const updateLayout = () => {
+//     if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
+//     if (footerRef.current) setFooterHeight(footerRef.current.offsetHeight);
+//     setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
+//   };
+
+//   useEffect(() => {
+//     setTimeout(updateLayout, 50);
+//     window.addEventListener("resize", updateLayout);
+//     return () => window.removeEventListener("resize", updateLayout);
+//   }, []);
+
+//   const sectionHeight = window.innerHeight - headerHeight - footerHeight;
+
+//   const sections = [
+//     { id: 1, label: "About Me", className: "section-1" },
+//     { id: 2, label: "Map", className: "section-2" },
+//     { id: 3, label: "Message", className: "section-3" },
+//   ];
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     const name = e.target.name.value;
+//     const email = e.target.email.value;
+//     const message = e.target.message.value;
+//     const mailto = `mailto:zackelbaz@gmail.com?subject=Message from ${name}&body=Email: ${email}%0D%0A%0D%0A${message}`;
+//     window.location.href = mailto;
+//   };
+
+//   return (
+//     <div className="page-container">
+//       <HeaderBar ref={headerRef} />
+//       <div
+//         className="contact-content"
+//         style={{
+//           paddingBottom: `${footerHeight}px`,
+//           position: "relative",
+//           overflow: "hidden"
+//         }}
+//       >
+//         <LavaLampBackground
+//           topOffset={headerHeight}
+//           bottomOffset={footerHeight}
+//         />
+//         <div
+//           ref={layoutRef}
+//           className={isPortrait ? "portrait-layout" : "landscape-layout"}
+//           style={{
+//             height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
+//             marginTop: `${headerHeight}px`
+//           }}
+//         >
+//           {sections.map(({ id, label, className }) => (
+//             <div
+//               key={id}
+//               className={`section ${className} ${!isPortrait ? "horizontal-section" : ""}`}
+//               style={{
+//                 height: `${sectionHeight}px`,
+//                 minHeight: `${sectionHeight}px`,
+//                 width: !isPortrait ? `${100 / sections.length}%` : "100%",
+//                 flexShrink: 0,
+//                 display: "flex",
+//                 alignItems: "center",
+//                 justifyContent: "center",
+//                 backgroundColor: "transparent",
+//                 position: "relative",
+//                 zIndex: 1
+//               }}
+//             >
+//               {label === "About Me" ? (
+//                 <div className="contact-info">
+//                   <h3 className="contact-title">Who I am:</h3>
+//                   <h2>Zack El-baz</h2>
+//                   <p>
+//                     Application Engineer at{" "}
+//                     <a
+//                       href="https://www.volklec.com"
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                       className="company-link"
+//                     >
+//                       Volklec
+//                     </a>
+//                   </p>
+//                   <div className="contact-links">
+//                     <a
+//                       href="https://www.linkedin.com/in/zack-el-baz"
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                     >
+//                       LinkedIn
+//                     </a>
+//                     <a
+//                       href="https://www.instagram.com/skip_the_beta"
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                     >
+//                       Instagram
+//                     </a>
+//                   </div>
+//                 </div>
+//               ) : label === "Map" ? (
+//                 <div style={{ height: "100%", width: "100%" }}>
+//                   <OpenMap
+//                     scrollWheelZoom={false}
+//                     dragging={false}
+//                     doubleClickZoom={false}
+//                     zoomControl={false}
+//                     touchZoom={false}
+//                     keyboard={false}
+//                   />
+//                 </div>
+//               ) : label === "Message" ? (
+//                 <form
+//                   className="message-form"
+//                   onSubmit={handleSubmit}
+//                   style={{
+//                     display: "flex",
+//                     flexDirection: "column",
+//                     justifyContent: "center",
+//                     alignItems: "center",
+//                     height: "100%",
+//                     width: "100%",
+//                     gap: "20px",
+//                     padding: "0 20px",
+//                     boxSizing: "border-box"
+//                   }}
+//                 >
+//                   <input
+//                     type="text"
+//                     name="name"
+//                     placeholder="Name"
+//                     required
+//                     style={{
+//                       width: "100%",
+//                       maxWidth: "500px",
+//                       padding: "10px"
+//                     }}
+//                   />
+//                   <input
+//                     type="email"
+//                     name="email"
+//                     placeholder="Your E-mail address"
+//                     required
+//                     style={{
+//                       width: "100%",
+//                       maxWidth: "500px",
+//                       padding: "10px"
+//                     }}
+//                   />
+//                   <textarea
+//                     name="message"
+//                     placeholder="Write your message here..."
+//                     required
+//                     style={{
+//                       width: "100%",
+//                       maxWidth: "500px",
+//                       padding: "10px",
+//                       height: "150px"
+//                     }}
+//                   />
+//                   <button type="submit" style={{ padding: "10px 20px", fontSize: "1rem" }}>
+//                     Send Message
+//                   </button>
+//                 </form>
+//               ) : (
+//                 label
+//               )}
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//       <FooterBar ref={footerRef} />
+//       {isPortrait && (
+//         <ScrollIndicator scrollContainerRef={layoutRef} sectionHeight={sectionHeight} />
+//       )}
+//     </div>
+//   );
+// }
+
+// export default ContactPage;
+
+
+
+
+
 import React, { useEffect, useState, useRef } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
-import GoogleMapComponent from "../components/GoogleMapComponent";
+import ScrollIndicator from "../components/ScrollIndicator";
+import OpenMap from "../components/OpenMap";
+import LavaLampBackground from "../components/LavaLampBackground";
 import "./ContactPage.css";
 
 function ContactPage() {
-  const [headerHeight, setHeaderHeight] = useState(80);
-  const [footerHeight, setFooterHeight] = useState(60);
-  const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
-
   const headerRef = useRef(null);
   const footerRef = useRef(null);
+  const layoutRef = useRef(null);
 
-  const updateHeights = () => {
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [footerHeight, setFooterHeight] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
+
+  const updateLayout = () => {
     if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
     if (footerRef.current) setFooterHeight(footerRef.current.offsetHeight);
-  };
-
-  const updateOrientation = () => {
     setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
   };
 
   useEffect(() => {
-    updateHeights();
-    updateOrientation();
-
-    window.addEventListener("resize", updateHeights);
-    window.addEventListener("resize", updateOrientation);
-
-    return () => {
-      window.removeEventListener("resize", updateHeights);
-      window.removeEventListener("resize", updateOrientation);
-    };
+    setTimeout(updateLayout, 50);
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
-  const portraitSectionStyle = {
-    height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
-  };
+  const sectionHeight = window.innerHeight - headerHeight - footerHeight;
 
   const sections = [
-    { id: 1, title: "Contact Info List", className: "section-1" },
-    { id: 2, title: "Map", className: "section-2" },
-    { id: 3, title: "Email Submission", className: "section-3" },
+    { id: 1, label: "About Me", className: "section-1" },
+    { id: 2, label: "Map", className: "section-2" },
+    { id: 3, label: "Message", className: "section-3" },
   ];
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const message = e.target.message.value;
+    const mailto = `mailto:zackelbaz@gmail.com?subject=Message from ${name}&body=Email: ${email}%0D%0A%0D%0A${message}`;
+    window.location.href = mailto;
+  };
+
   return (
-    <div>
+    <div className="page-container">
       <HeaderBar ref={headerRef} />
-      <div className="contact-content" style={{ paddingTop: `${headerHeight}px` }}>
-        <div className={isPortrait ? "portrait-layout" : "landscape-layout"} style={isPortrait ? undefined : { height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)` }}>
-          {sections.map(({ id, title, className }) => (
+      <div
+        className="contact-content"
+        style={{
+          paddingBottom: `${footerHeight}px`,
+          position: "relative",
+          overflow: "hidden"
+        }}
+      >
+        <LavaLampBackground
+          topOffset={headerHeight}
+          bottomOffset={footerHeight}
+        />
+        <div
+          ref={layoutRef}
+          className={isPortrait ? "portrait-layout" : "landscape-layout"}
+          style={{
+            height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
+            marginTop: `${headerHeight}px`
+          }}
+        >
+          {sections.map(({ id, label, className }) => (
             <div
               key={id}
-              className={`section ${className} ${isPortrait ? "" : "horizontal-section"}`}
-              style={isPortrait ? portraitSectionStyle : {}}
+              className={`section ${className} ${!isPortrait ? "horizontal-section" : ""}`}
+              style={{
+                height: `${sectionHeight}px`,
+                minHeight: `${sectionHeight}px`,
+                width: !isPortrait ? `${100 / sections.length}%` : "100%",
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "transparent",
+                position: "relative",
+                zIndex: 1
+              }}
             >
-              {title === "Map" ? (
-                <GoogleMapComponent />
-              ) : title === "Email Submission" ? (
-                <div className="email-submission">
-                  <div className="input-container">
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      placeholder="NAME"
-                    />
-                  </div>
-                  <div className="input-container">
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      placeholder="EMAIL"
-                    />
-                  </div>
-                  <div className="input-container">
-                    <textarea
-                      id="message"
-                      name="message"
-                      placeholder="MESSAGE"
-                    ></textarea>
-                  </div>
-                  <div className="send-container">
-                    <a href="mailto:zackelbaz@gmail.com" className="send-button">
-                      SEND
+              {label === "About Me" ? (
+                <div className="contact-info">
+                  <h3 className="contact-title">Who I am:</h3>
+                  <h2>Zack El-baz</h2>
+                  <p>
+                    Application Engineer at{" "}
+                    <a
+                      href="https://www.volklec.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="company-link"
+                    >
+                      Volklec
+                    </a>
+                  </p>
+                  <div className="contact-links">
+                    <a
+                      href="https://www.linkedin.com/in/zack-el-baz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      LinkedIn
+                    </a>
+                    <a
+                      href="https://www.instagram.com/skip_the_beta"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Instagram
                     </a>
                   </div>
                 </div>
+              ) : label === "Map" ? (
+                <div className="map-container">
+                  <OpenMap
+                    scrollWheelZoom={false}
+                    dragging={false}
+                    doubleClickZoom={false}
+                    zoomControl={false}
+                    touchZoom={false}
+                    keyboard={false}
+                  />
+                </div>
+              ) : label === "Message" ? (
+                <form
+                  className="message-form"
+                  onSubmit={handleSubmit}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                    width: "100%",
+                    gap: "20px",
+                    padding: "0 20px",
+                    boxSizing: "border-box"
+                  }}
+                >
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    required
+                    style={{
+                      width: "100%",
+                      maxWidth: "500px",
+                      padding: "10px"
+                    }}
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Your E-mail address"
+                    required
+                    style={{
+                      width: "100%",
+                      maxWidth: "500px",
+                      padding: "10px"
+                    }}
+                  />
+                  <textarea
+                    name="message"
+                    placeholder="Write your message here..."
+                    required
+                    style={{
+                      width: "100%",
+                      maxWidth: "500px",
+                      padding: "10px",
+                      height: "150px"
+                    }}
+                  />
+                  <button type="submit" style={{ padding: "10px 20px", fontSize: "1rem" }}>
+                    Send Message
+                  </button>
+                </form>
               ) : (
-                title
+                label
               )}
             </div>
           ))}
         </div>
-        {isPortrait && <div style={{ height: `${footerHeight}px` }} />}
       </div>
       <FooterBar ref={footerRef} />
+      {isPortrait && (
+        <ScrollIndicator scrollContainerRef={layoutRef} sectionHeight={sectionHeight} />
+      )}
     </div>
   );
 }

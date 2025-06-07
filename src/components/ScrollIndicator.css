@@ -2,8 +2,8 @@
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9999;
-  pointer-events: none;
+  z-index: 99999;
+  pointer-events: auto;
   animation: fadeIn 0.5s ease-in-out;
 }
 
@@ -16,24 +16,22 @@
 }
 
 .scroll-arrow {
+  pointer-events: auto;
+  cursor: pointer;
   width: 70px;
   height: 70px;
   object-fit: contain;
-  filter: invert(1);
   mix-blend-mode: difference;
-  pointer-events: none;
   animation: bounce 1.5s infinite;
-
-  /* 🧠 Add this shadow: */
   filter: invert(1) drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
 }
 
-/* Different rotation */
+/* Ensure up arrow is flipped */
 .up-arrow {
   transform: rotate(180deg);
 }
 
-/* Bounce animations */
+/* Apply correct animation direction */
 .scroll-indicator.down .scroll-arrow {
   animation-name: bounceDown;
 }
@@ -42,6 +40,7 @@
   animation-name: bounceUp;
 }
 
+/* Animations */
 @keyframes bounceDown {
   0%, 20%, 50%, 80%, 100% {
     transform: translateY(0);

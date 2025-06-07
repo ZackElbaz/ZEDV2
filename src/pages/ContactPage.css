@@ -1,117 +1,152 @@
 .page-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-main); /* ✅ Global font for ContactPage */
+}
+
+.contact-content {
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Portrait layout with snap scroll */
+.portrait-layout {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+/* Landscape layout */
+.landscape-layout {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  height: 100%;
+}
+
+/* Common Section Styles */
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-family: var(--font-main);
+  color: white;
+  scroll-snap-align: start;
+  width: 100%;
+}
+
+/* Color Styles */
+.section-1 {
+  background-color: #e74c3c;
+}
+
+.section-2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #bfdb34; /* your existing map section background */
+}
+
+
+.section-3 {
+  background-color: #2ecc71;
+}
+
+/* Landscape widths */
+@media (orientation: landscape) {
+  .horizontal-section.section-1,
+  .horizontal-section.section-2,
+  .horizontal-section.section-3 {
+    width: 33.33%;
   }
-  
-  .contact-content {
-    width: 100%;
-    flex: 1;
-    overflow-y: auto;
-  }
-  
-  /* Layout Wrappers */
-  .portrait-layout {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .landscape-layout {
-    display: flex;
-    flex-direction: row;
-  }
-  
-  /* Common Section Styles */
-  .section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: white;
-  }
-  
-  /* Color Styles */
-  .section-1 {
-    background-color: #e74c3c;
-  }
-  
-  .section-2 {
-    background-color: #bfdb34;
-  }
-  
-  .section-3 {
-    background-color: #2ecc71;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 20px;
-    width: 100%;
-  }
-  
-  /* Layout for Form in Section 3 */
-  .email-submission {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-  }
-  
-  .input-container {
-    margin-bottom: 20px;
-  }
-  
-  .input-container label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .input-container input,
-  .input-container textarea {
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  textarea {
-    min-height: 150px;
-  }
-  
-  .send-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  
-  .send-button {
-    background-color: #3498db;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 1.2rem;
-    text-align: center;
-  }
-  
-  .send-button:hover {
-    background-color: #2980b9;
-  }
-  
-  /* Landscape sizing */
-  @media (orientation: landscape) {
-    .horizontal-section.section-1 {
-      width: 25%;
-    }
-  
-    .horizontal-section.section-2 {
-      width: 50%;
-    }
-  
-    .horizontal-section.section-3 {
-      width: 25%;
-    }
-  }
-  
+}
+
+/* Contact Info Styling */
+.contact-info {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-info h2 {
+  font-size: 2rem;
+  font-family: var(--font-main);
+  margin: 0;
+}
+
+.contact-info p {
+  font-size: 1.2rem;
+  font-family: var(--font-main);
+  margin: 0;
+  color: #f0f0f0;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column; /* stacks links vertically */
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center; /* optional: center-align the links horizontally */
+}
+
+
+.contact-links a {
+  color: white;
+  text-decoration: underline;
+  font-size: 1.1rem;
+  font-family: var(--font-main);
+  transition: color 0.2s ease;
+}
+
+.contact-links a:hover {
+  color: #ddd;
+}
+
+/* Volklec link in job title */
+.company-link {
+  color: white;
+  text-decoration: underline;
+  font-weight: 500;
+  font-family: var(--font-main);
+  transition: color 0.2s ease;
+}
+
+.company-link:hover {
+  color: #ddd;
+}
+
+
+.map-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60%;
+  height: 90%;
+  max-width: 700px;
+  max-height: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: transparent; /* ✅ No white fill */
+  box-shadow: none; /* ✅ No shadow */
+  padding: 0;
+}
+
+.map-container .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+  margin: 0;
+  padding: 0;
+  background: none !important;
+}
