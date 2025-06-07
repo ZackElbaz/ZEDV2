@@ -267,9 +267,9 @@ function HomePagePattern() {
     const randomSeed = Math.random() * 1000.0;
 
     const canvas = canvasRef.current;
-    const gl = canvas.getContext('webgl');
+    const gl = canvas.getContext("webgl");
     if (!gl) {
-      alert('WebGL not supported');
+      alert("WebGL not supported");
       return;
     }
 
@@ -288,7 +288,7 @@ function HomePagePattern() {
       }
     `;
 
-    const fragmentShaderSource = `...`; // (Keep your existing fragment shader unchanged here)
+    const fragmentShaderSource = `...`; // (Keep your full shader here)
 
     function createShader(gl, type, source) {
       const shader = gl.createShader(type);
@@ -353,18 +353,28 @@ function HomePagePattern() {
     const secondaryColor = useRandomColors ? randomColorVec3() : cssColorToVec3("--coloursecondary");
 
     let mouse = [width / 2, height / 2];
+    let touchStartY = height / 2;
 
     function updateMouse(e) {
       const isTouch = e.type.startsWith("touch");
       const x = isTouch ? e.touches?.[0]?.clientX ?? width / 2 : e.clientX ?? width / 2;
-      const y = isTouch ? height / 2 : e.clientY ?? height / 2; // lock Y for touch
+      const y = isTouch ? touchStartY : e.clientY ?? height / 2;
       mouse = [x, y];
     }
 
+    function setTouchStart(e) {
+      const touch = e.touches?.[0];
+      if (touch) {
+        touchStartY = touch.clientY;
+        updateMouse(e);
+      }
+    }
+
     window.addEventListener("mousemove", updateMouse);
+    window.addEventListener("touchstart", setTouchStart);
     window.addEventListener("touchmove", updateMouse);
 
-    // Prevent scrolling when touching the canvas
+    // Prevent scroll on touch over canvas
     const preventScroll = e => e.preventDefault();
     canvas.addEventListener("touchmove", preventScroll, { passive: false });
 
@@ -407,6 +417,7 @@ function HomePagePattern() {
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", updateMouse);
+      window.removeEventListener("touchstart", setTouchStart);
       window.removeEventListener("touchmove", updateMouse);
       canvas.removeEventListener("touchmove", preventScroll);
     };
@@ -416,3 +427,4 @@ function HomePagePattern() {
 }
 
 export default HomePagePattern;
+
