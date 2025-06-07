@@ -211,7 +211,8 @@ import "./ContactPage.css";
 
 function ContactPage() {
   const formFieldWidth = "60%";
-
+  const buttonWidth = `${(parseFloat(formFieldWidth) * 2) / 3}%`; // "40%"
+  
   const headerRef = useRef(null);
   const footerRef = useRef(null);
   const layoutRef = useRef(null);
@@ -381,7 +382,14 @@ function ContactPage() {
                       height: "150px"
                     }}
                   />
-                  <button type="submit" style={{ padding: "10px 20px", fontSize: "1rem" }}>
+                  <button
+                    type="submit"
+                    style={{
+                      width: buttonWidth,
+                      padding: "10px 20px",
+                      fontSize: "1rem"
+                    }}
+                  >
                     Send Message
                   </button>
                 </form>
