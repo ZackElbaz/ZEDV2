@@ -163,7 +163,10 @@ export function setupWebGLRenderer({
     gl.uniform1f(u_contrast, contrast);
     gl.uniform1f(u_sharpness, sharpness);
     gl.uniform1f(u_saturation, saturation);
-    gl.uniform1f(u_pixelation, Math.max(1.0, pixelation));
+    const maxDim = Math.max(texWidth, texHeight);
+    const scaledPixelation = maxDim / Math.pow(2, pixelation / 100); // scales 1 → 100 into 1px → 2x2
+    gl.uniform1f(u_pixelation, scaledPixelation);
+
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
