@@ -321,7 +321,6 @@ function HomePagePattern() {
         vec3 ns = n_ * D.wyz - D.xzx;
 
         vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
-
         vec4 x_ = floor(j * ns.z);
         vec4 y_ = floor(j - 7.0 * x_);
 
@@ -331,7 +330,6 @@ function HomePagePattern() {
 
         vec4 b0 = vec4(x.xy, y.xy);
         vec4 b1 = vec4(x.zw, y.zw);
-
         vec4 s0 = floor(b0)*2.0 + 1.0;
         vec4 s1 = floor(b1)*2.0 + 1.0;
         vec4 sh = -step(h, vec4(0.0));
@@ -406,8 +404,7 @@ function HomePagePattern() {
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
+    gl.bufferData(gl.ARRAY_BUFFER,
       new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
       gl.STATIC_DRAW
     );
@@ -445,7 +442,6 @@ function HomePagePattern() {
     function handleTouchStart(e) {
       const touch = e.touches?.[0];
       if (!touch || e.target !== canvas) return;
-
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
       isInteracting = false;
@@ -504,7 +500,7 @@ function HomePagePattern() {
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform2fv(mouseLocation, mouse);
       gl.uniform3fv(primaryLocation, primaryColor);
-      gl.uniform3fv(secondaryColor, secondaryColor);
+      gl.uniform3fv(secondaryLocation, secondaryColor);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       requestAnimationFrame(render);
