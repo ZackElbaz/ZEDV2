@@ -164,17 +164,22 @@ export function setupWebGLRenderer({
     gl.uniform1f(u_sharpness, sharpness);
     gl.uniform1f(u_saturation, saturation);
         // NEW PIXELATION MAPPING (0–100 slider -> block size)
+    // Nonlinear pixelation mapping (slider 0–100 mapped exponentially)
     const maxDim = Math.max(texWidth, texHeight);
 
-    // Desired number of blocks on the longest side:
-    //  - 0 → maxDim / 2 blocks
-    //  - 100 → 1 block
-    const blocksLongSide = (maxDim / 4) * (1.0 - pixelation / 100) + 1;
+    // Exponentially remap slider value (0–100) to [0, 1] range
+    const t = pixelation / 100;
+    const nonlinearT = Math.pow(t, 2.2); // Try 2.0–3.0 for stronger nonlinearity
 
-    // Convert block count to block size in texels:
+    // Interpolate between min and max number of blocks
+    const minBlocks = maxDim / 2; // fine detail (slider = 0)
+    const maxBlocks = 1;          // single block (slider = 100)
+    const blocksLongSide = minBlocks * (1.0 - nonlinearT) + maxBlocks * nonlinearT;
+
+    // Convert to pixel size
     const pixelSize = maxDim / blocksLongSide;
-
     gl.uniform1f(u_pixelation, pixelSize);
+
 
 
 
