@@ -539,6 +539,7 @@ import FooterBar from "../components/FooterBar";
 import { setupWebGLRenderer } from "./ProjectGlyphsShader";
 
 function ProjectGlyphs() {
+  const MAX_SIZE = 1600;
   const [headerHeight] = useState(80);
   const [footerHeight] = useState(60);
   const [mediaType, setMediaType] = useState(null);
@@ -667,8 +668,6 @@ function ProjectGlyphs() {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
-          const MAX_SIZE = 1600; // You can lower this to make things faster
-
           const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
           const newWidth = img.width * scale;
           const newHeight = img.height * scale;
@@ -756,7 +755,6 @@ function ProjectGlyphs() {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
-      const MAX_SIZE = 1600;
       const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
       const newWidth = img.width * scale;
       const newHeight = img.height * scale;
