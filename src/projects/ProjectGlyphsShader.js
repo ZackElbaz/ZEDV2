@@ -169,7 +169,7 @@ export function setupWebGLRenderer({
     // Desired number of blocks on the longest side:
     //  - 0 → maxDim / 2 blocks
     //  - 100 → 1 block
-    const blocksLongSide = (maxDim / 2) * (1.0 - pixelation / 100) + 1;
+    const blocksLongSide = (maxDim / 4) * (1.0 - pixelation / 100) + 1;
 
     // Convert block count to block size in texels:
     const pixelSize = maxDim / blocksLongSide;
