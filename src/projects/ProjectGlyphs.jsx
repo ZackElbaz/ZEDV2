@@ -771,14 +771,17 @@ const onFileChange = (e) => {
     const img = new Image();
     img.onload = () => {
       if (imageRef.current) {
+        imageRef.current.onload = () => {
+          setMediaType("image");
+          setMediaSource(img.src);
+          setNeedsUpdate(true); // ensures correct re-render
+        };
         imageRef.current.src = img.src;
-        setMediaType("image");
-        setMediaSource(img.src);
-        setNeedsUpdate(true);
       }
     };
     img.src = `${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`;
   }, []);
+
 
   return (
     <div style={{ minHeight: "100vh", overflowY: "auto", position: "relative" }}>
