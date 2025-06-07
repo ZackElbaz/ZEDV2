@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import HomePage from "./pages/HomePage";
