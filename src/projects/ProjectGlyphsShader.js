@@ -132,18 +132,19 @@ export function setupWebGLRenderer({
   const u_saturation = gl.getUniformLocation(program, "u_saturation");
   const u_pixelation = gl.getUniformLocation(program, "u_pixelation");
 
-  let rafId;
-  const renderLoop = () => {
+    let rafId;
+    const renderLoop = () => {
     const sourceElement =
-      mediaType === "image" ? imageRef.current :
-      mediaType === "video" ? videoRef.current :
-      webcamRef.current;
+        mediaType === "image" ? imageRef.current :
+        mediaType === "video" ? videoRef.current :
+        webcamRef.current;
 
     const texWidth = sourceElement?.videoWidth || sourceElement?.naturalWidth;
     const texHeight = sourceElement?.videoHeight || sourceElement?.naturalHeight;
+
     if (!texWidth || !texHeight) {
-      rafId = requestAnimationFrame(renderLoop);
-      return;
+        rafId = requestAnimationFrame(renderLoop);
+        return;
     }
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -167,9 +168,14 @@ export function setupWebGLRenderer({
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    if (mediaType !== "video" && mediaType !== "webcam") setNeedsUpdate(false);
-    rafId = requestAnimationFrame(renderLoop);
-  };
+    if (mediaType === "video" || mediaType === "webcam") {
+        rafId = requestAnimationFrame(renderLoop);
+    } else if (needsUpdate) {
+        setNeedsUpdate(false);
+        rafId = requestAnimationFrame(renderLoop);
+    }
+    };
+
 
   renderLoop();
   return () => cancelAnimationFrame(rafId);
