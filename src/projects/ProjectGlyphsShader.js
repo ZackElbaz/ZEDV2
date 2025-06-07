@@ -134,52 +134,33 @@ export function setupWebGLRenderer({
 
     const texWidth = sourceElement?.videoWidth || sourceElement?.naturalWidth;
     const texHeight = sourceElement?.videoHeight || sourceElement?.naturalHeight;
-    if (!texWidth || !texHeight || !sourceElement) {
+    if (!texWidth || !texHeight) {
       rafId = requestAnimationFrame(renderLoop);
       return;
     }
 
-    if (mediaType !== "video" && mediaType !== "webcam" && !needsUpdate) {
-      rafId = requestAnimationFrame(renderLoop);
-      return;
-    }
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceElement);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
 
-    try {
-      if (sourceElement instanceof HTMLImageElement && !sourceElement.complete) {
-        rafId = requestAnimationFrame(renderLoop);
-        return;
-      }
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // Flip image vertically
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceElement);
+    gl.uniform1i(u_texture, 0);
+    gl.uniform2f(u_textureSize, texWidth, texHeight);
+    gl.uniform2f(u_canvasSize, canvas.width, canvas.height);
+    gl.uniform1i(u_isWebcamFront, mediaType === "webcam" && isFrontFacing ? 1 : 0);
+    gl.uniform1f(u_contrast, contrast);
+    gl.uniform1f(u_sharpness, sharpness);
+    gl.uniform1f(u_saturation, saturation);
+    gl.uniform1f(u_pixelation, pixelation);
 
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      gl.uniform1i(u_texture, 0);
-      gl.uniform2f(u_textureSize, texWidth, texHeight);
-      gl.uniform2f(u_canvasSize, canvas.width, canvas.height);
-      gl.uniform1i(u_isWebcamFront, mediaType === "webcam" && isFrontFacing ? 1 : 0);
-      gl.uniform1f(u_contrast, contrast);
-      gl.uniform1f(u_sharpness, sharpness);
-      gl.uniform1f(u_saturation, saturation);
-      gl.uniform1f(u_pixelation, pixelation);
-
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-      if (mediaType !== "video" && mediaType !== "webcam") {
-        setNeedsUpdate(false);
-      }
-    } catch (e) {
-      console.warn("Texture upload error:", e);
-    }
-
+    if (mediaType !== "video" && mediaType !== "webcam") setNeedsUpdate(false);
     rafId = requestAnimationFrame(renderLoop);
   };
 
