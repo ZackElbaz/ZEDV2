@@ -710,6 +710,12 @@ function ProjectGlyphs() {
     isFrontFacing,
   ]);
 
+  useEffect(() => {
+    // Set initial placeholder media
+    setMediaType("image");
+    setMediaSource("/SkyWhales_Noracored.png");
+  }, []);
+
   return (
     <div style={{ minHeight: "100vh", overflowY: "auto", position: "relative" }}>
       <HeaderBar ref={headerRef} />
