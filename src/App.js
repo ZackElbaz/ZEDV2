@@ -6,6 +6,9 @@ import ContactPage from "./pages/ContactPage";
 import ProjectGlyphs from "./projects/ProjectGlyphs";
 
 function App() {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Forces top on initial load
+  }, []);
   return (
     <Router>
       <ScrollToTop />
