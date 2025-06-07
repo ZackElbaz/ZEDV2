@@ -125,8 +125,6 @@ export function setupWebGLRenderer({
   const u_saturation = gl.getUniformLocation(program, "u_saturation");
   const u_pixelation = gl.getUniformLocation(program, "u_pixelation");
 
-  let lastMediaType = null;
-
   let rafId;
   const renderLoop = () => {
     const sourceElement =
@@ -141,20 +139,12 @@ export function setupWebGLRenderer({
       return;
     }
 
-    const isDynamic = mediaType === "video" || mediaType === "webcam";
-    if (isDynamic || needsUpdate || mediaType !== lastMediaType) {
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceElement);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
-      lastMediaType = mediaType;
-
-      if (!isDynamic) {
-        setNeedsUpdate(false);
-      }
-    }
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceElement);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, pixelation > 50 ? gl.NEAREST : gl.LINEAR);
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -170,6 +160,7 @@ export function setupWebGLRenderer({
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
+    if (mediaType !== "video" && mediaType !== "webcam") setNeedsUpdate(false);
     rafId = requestAnimationFrame(renderLoop);
   };
 

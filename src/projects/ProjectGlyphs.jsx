@@ -644,20 +644,54 @@ function ProjectGlyphs() {
     };
   }, [selectedDeviceId, videoDevices]);
 
-  const onFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+const onFileChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    if (webcamRef.current?.srcObject) {
-      webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
-      webcamRef.current.srcObject = null;
-    }
+  // Stop any webcam stream
+  if (webcamRef.current?.srcObject) {
+    webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
+    webcamRef.current.srcObject = null;
+  }
 
-    setSelectedDeviceId("");
-    setIsFrontFacing(false);
+  // Reset camera-related state
+  setSelectedDeviceId("");
+  setIsFrontFacing(false);
 
+  // Check if the file is a video
+  const isVideo = file.type.startsWith("video");
+
+  // Convert PNG to JPEG if needed
+  if (!isVideo && file.type === "image/png") {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        // Convert to JPEG at 92% quality
+        const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.92);
+
+        setMediaSource(null);
+        setMediaType(null);
+
+        // Wait a moment to reset state before applying new image
+        setTimeout(() => {
+          setMediaType("image");
+          setMediaSource(jpegDataUrl);
+          setNeedsUpdate(true);
+        }, 50);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // Handle regular image or video file
     const url = URL.createObjectURL(file);
-    const isVideo = file.type.startsWith("video");
 
     setMediaSource(null);
     setMediaType(null);
@@ -667,9 +701,12 @@ function ProjectGlyphs() {
       setMediaSource(url);
       setNeedsUpdate(true);
     }, 50);
+  }
 
-    e.target.value = null;
-  };
+  // Reset the file input value so the same file can be selected again
+  e.target.value = null;
+};
+
 
   useEffect(() => {
     if (mediaType === "video" && videoRef.current) {
