@@ -74,3 +74,6 @@ function HomePage() {
 export default HomePage;
 
 // npm run build && npm run deploy
+
+// git add . && git commit -m "Initial commit" && git push origin main && npm run build && npm run deploy
+

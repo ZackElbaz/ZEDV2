@@ -1,3 +1,69 @@
+// ProjectGlyphsShader.js
+
+export function getShaders() {
+  const vertexShaderSource = `
+    attribute vec2 a_position;
+    varying vec2 v_uv;
+    void main() {
+      v_uv = a_position * 0.5 + 0.5;
+      gl_Position = vec4(a_position, 0, 1);
+    }
+  `;
+
+  const fragmentShaderSource = `
+    precision mediump float;
+    varying vec2 v_uv;
+    uniform float u_pixelation;
+    uniform sampler2D u_texture;
+    uniform vec2 u_textureSize;
+    uniform vec2 u_canvasSize;
+    uniform int u_isWebcamFront;
+    uniform float u_contrast;
+    uniform float u_sharpness;
+    uniform float u_saturation;
+
+    vec3 adjustContrast(vec3 color, float contrast) {
+      return (color - 0.5) * contrast + 0.5;
+    }
+    vec3 adjustSaturation(vec3 color, float saturation) {
+      float grey = dot(color, vec3(0.299, 0.587, 0.114));
+      return mix(vec3(grey), color, saturation);
+    }
+    vec3 applySharpen(vec2 uv) {
+      vec2 texel = 1.0 / u_textureSize;
+      vec3 color = texture2D(u_texture, uv).rgb * (1.0 + 4.0 * u_sharpness);
+      color -= texture2D(u_texture, uv + vec2(texel.x, 0)).rgb * u_sharpness;
+      color -= texture2D(u_texture, uv - vec2(texel.x, 0)).rgb * u_sharpness;
+      color -= texture2D(u_texture, uv + vec2(0, texel.y)).rgb * u_sharpness;
+      color -= texture2D(u_texture, uv - vec2(0, texel.y)).rgb * u_sharpness;
+      return color;
+    }
+    void main() {
+      float texAspect = u_textureSize.x / u_textureSize.y;
+      float canAspect = u_canvasSize.x / u_canvasSize.y;
+      vec2 scale = (texAspect > canAspect)
+        ? vec2(1.0, canAspect / texAspect)
+        : vec2(texAspect / canAspect, 1.0);
+      vec2 centeredUV = (v_uv - 0.5) / scale + 0.5;
+      vec2 pixelSize = vec2(1.0) / (u_pixelation * u_textureSize / min(u_textureSize.x, u_textureSize.y));
+      centeredUV = (floor(centeredUV / pixelSize) + 0.5) * pixelSize;
+      if (u_isWebcamFront == 1) {
+        centeredUV.x = 1.0 - centeredUV.x;
+      }
+      if (centeredUV.x < 0.0 || centeredUV.x > 1.0 || centeredUV.y < 0.0 || centeredUV.y > 1.0) {
+        discard;
+      } else {
+        vec3 color = applySharpen(vec2(centeredUV.x, 1.0 - centeredUV.y));
+        color = adjustContrast(color, u_contrast);
+        color = adjustSaturation(color, u_saturation);
+        gl_FragColor = vec4(color, 1.0);
+      }
+    }
+  `;
+
+  return { vertexShaderSource, fragmentShaderSource };
+}
+
 export function setupWebGLRenderer({
   canvas,
   imageRef,
@@ -18,6 +84,8 @@ export function setupWebGLRenderer({
     return;
   }
 
+  const { vertexShaderSource, fragmentShaderSource } = getShaders();
+
   const compileShader = (type, source) => {
     const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
@@ -28,19 +96,6 @@ export function setupWebGLRenderer({
     }
     return shader;
   };
-
-  const vertexShaderSource = `
-    attribute vec2 a_position;
-    varying vec2 v_uv;
-    void main() {
-      v_uv = a_position * 0.5 + 0.5;
-      gl_Position = vec4(a_position, 0, 1);
-    }
-  `;
-
-  const fragmentShaderSource = `
-// shader code continues (unchanged)... [continued in next message if needed]
-`;
 
   const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
   const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
@@ -53,7 +108,10 @@ export function setupWebGLRenderer({
   const positionLoc = gl.getAttribLocation(program, "a_position");
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    -1, -1, 1, -1, -1, 1,
+    -1, 1, 1, -1, 1, 1
+  ]), gl.STATIC_DRAW);
   gl.enableVertexAttribArray(positionLoc);
   gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 
@@ -67,17 +125,19 @@ export function setupWebGLRenderer({
   const u_saturation = gl.getUniformLocation(program, "u_saturation");
   const u_pixelation = gl.getUniformLocation(program, "u_pixelation");
 
+  let rafId;
   const renderLoop = () => {
     const sourceElement =
-      mediaType === "image"
-        ? imageRef.current
-        : mediaType === "video"
-        ? videoRef.current
-        : webcamRef.current;
+      mediaType === "image" ? imageRef.current :
+      mediaType === "video" ? videoRef.current :
+      webcamRef.current;
 
     const texWidth = sourceElement?.videoWidth || sourceElement?.naturalWidth;
     const texHeight = sourceElement?.videoHeight || sourceElement?.naturalHeight;
-    if (!texWidth || !texHeight) return;
+    if (!texWidth || !texHeight) {
+      rafId = requestAnimationFrame(renderLoop);
+      return;
+    }
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceElement);
@@ -100,10 +160,11 @@ export function setupWebGLRenderer({
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    requestAnimationFrame(renderLoop);
+    if (mediaType !== "video" && mediaType !== "webcam") setNeedsUpdate(false);
+    rafId = requestAnimationFrame(renderLoop);
   };
 
-  requestAnimationFrame(renderLoop);
+  renderLoop();
 
-  return () => cancelAnimationFrame(renderLoop);
+  return () => cancelAnimationFrame(rafId);
 }
