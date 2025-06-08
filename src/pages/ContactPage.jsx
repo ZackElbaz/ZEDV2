@@ -233,6 +233,45 @@ function ContactPage() {
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
+  useEffect(() => {
+    if (!isPortrait || !layoutRef.current) return;
+
+    const el = layoutRef.current;
+
+    let startY = 0;
+    let endY = 0;
+
+    const threshold = 50; // Minimum swipe distance to trigger
+
+    const handleTouchStart = (e) => {
+      startY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+      endY = e.changedTouches[0].clientY;
+      const deltaY = startY - endY;
+
+      if (Math.abs(deltaY) > threshold) {
+        const direction = deltaY > 0 ? "down" : "up";
+        scrollBySection(direction);
+      }
+    };
+
+    const scrollBySection = (direction) => {
+      const offset = direction === "down" ? sectionHeight : -sectionHeight;
+      el.scrollBy({ top: offset, behavior: "smooth" });
+    };
+
+    el.addEventListener("touchstart", handleTouchStart);
+    el.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [isPortrait, sectionHeight]);
+
+
   const sectionHeight = window.innerHeight - headerHeight - footerHeight;
 
   const sections = [
