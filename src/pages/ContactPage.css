@@ -127,15 +127,17 @@
 
 
 .map-container {
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 60%;
+  height: 90%;
+  max-width: 700px;
+  max-height: 500px;
+  border-radius: 16px;
   overflow: hidden;
-  background-color: transparent;
-  border-radius: 0;
-  box-shadow: none;
+  background-color: transparent; /* ✅ No white fill */
+  box-shadow: none; /* ✅ No shadow */
   padding: 0;
 }
 
@@ -143,8 +145,8 @@
   width: 100% !important;
   height: 100% !important;
   border: none !important;
+  border-radius: 0 !important;
   margin: 0;
   padding: 0;
   background: none !important;
 }
-

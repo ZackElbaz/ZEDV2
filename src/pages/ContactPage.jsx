@@ -220,26 +220,21 @@ function ContactPage() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [footerHeight, setFooterHeight] = useState(0);
   const [sectionHeight, setSectionHeight] = useState(0);
-  const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
+  const [isPortrait, setIsPortrait] = useState(
+    window.matchMedia("(orientation: portrait)").matches
+  );
 
   const updateLayout = () => {
     if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
     if (footerRef.current) setFooterHeight(footerRef.current.offsetHeight);
-    if (layoutRef.current) setSectionHeight(layoutRef.current.clientHeight);
+    if (layoutRef.current) setSectionHeight(layoutRef.current.offsetHeight);
     setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
   };
 
   useEffect(() => {
-    const delayUpdate = () => updateLayout();
+    setTimeout(updateLayout, 50);
     window.addEventListener("resize", updateLayout);
-    window.addEventListener("orientationchange", delayUpdate);
-
-    setTimeout(updateLayout, 100);
-
-    return () => {
-      window.removeEventListener("resize", updateLayout);
-      window.removeEventListener("orientationchange", delayUpdate);
-    };
+    return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
   const sections = [
@@ -254,31 +249,30 @@ function ContactPage() {
     const container = layoutRef.current;
     if (!container) return;
 
-    let currentIndex = 0;
-    let isAnimating = false;
+    let currentIndex = Math.round(container.scrollTop / sectionHeight);
     let touchStartY = 0;
+    let isSnapping = false;
 
     const scrollToSection = (index) => {
-      isAnimating = true;
-      currentIndex = Math.max(0, Math.min(sections.length - 1, index));
-
-      const targetOffset = currentIndex * sectionHeight;
+      isSnapping = true;
+      const clampedIndex = Math.max(0, Math.min(sections.length - 1, index));
+      currentIndex = clampedIndex;
+      const targetOffset = clampedIndex * sectionHeight;
 
       container.scrollTo({
         top: targetOffset,
         behavior: "smooth",
       });
 
-      const checkIfDone = () => {
+      const checkScrollSettled = () => {
         const distance = Math.abs(container.scrollTop - targetOffset);
         if (distance < 2) {
-          isAnimating = false;
+          isSnapping = false;
         } else {
-          requestAnimationFrame(checkIfDone);
+          requestAnimationFrame(checkScrollSettled);
         }
       };
-
-      requestAnimationFrame(checkIfDone);
+      requestAnimationFrame(checkScrollSettled);
     };
 
     const handleTouchStart = (e) => {
@@ -287,7 +281,7 @@ function ContactPage() {
     };
 
     const handleTouchEnd = (e) => {
-      if (isAnimating) return;
+      if (isSnapping) return;
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
 
@@ -299,8 +293,6 @@ function ContactPage() {
         scrollToSection(currentIndex - 1);
       }
     };
-
-    currentIndex = Math.round(container.scrollTop / sectionHeight);
 
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
     container.addEventListener("touchend", handleTouchEnd, { passive: true });
@@ -395,7 +387,7 @@ function ContactPage() {
                   </div>
                 </div>
               ) : label === "Map" ? (
-                <div className="map-container" style={{ height: "100%", width: "100%" }}>
+                <div className="map-container">
                   <OpenMap
                     scrollWheelZoom={false}
                     dragging={false}
@@ -426,22 +418,14 @@ function ContactPage() {
                     name="name"
                     placeholder="Name"
                     required
-                    style={{
-                      width: formFieldWidth,
-                      maxWidth: "500px",
-                      padding: "10px",
-                    }}
+                    style={{ width: formFieldWidth, maxWidth: "500px", padding: "10px" }}
                   />
                   <input
                     type="email"
                     name="email"
                     placeholder="Your E-mail address"
                     required
-                    style={{
-                      width: formFieldWidth,
-                      maxWidth: "500px",
-                      padding: "10px",
-                    }}
+                    style={{ width: formFieldWidth, maxWidth: "500px", padding: "10px" }}
                   />
                   <textarea
                     name="message"
@@ -478,10 +462,11 @@ function ContactPage() {
         </div>
       </div>
       <FooterBar ref={footerRef} />
-      {isPortrait && <ScrollIndicator scrollContainerRef={layoutRef} sectionHeight={sectionHeight} />}
+      {isPortrait && (
+        <ScrollIndicator scrollContainerRef={layoutRef} sectionHeight={sectionHeight} />
+      )}
     </div>
   );
 }
 
 export default ContactPage;
-
