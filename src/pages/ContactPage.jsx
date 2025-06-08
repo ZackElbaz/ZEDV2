@@ -584,10 +584,14 @@ function ContactPage() {
 
       if (Math.abs(deltaY) < 30) return;
 
-      if (deltaY > 0 && currentIndex < sections.length - 1) {
-        scrollToSection(currentIndex + 1);
-      } else if (deltaY < 0 && currentIndex > 0) {
-        scrollToSection(currentIndex - 1);
+      if (deltaY > 0 && currentIndex === 0) {
+        scrollToSection(1); // Top to middle
+      } else if (deltaY > 0 && currentIndex === 1) {
+        scrollToSection(2); // Middle to bottom
+      } else if (deltaY < 0 && currentIndex === 2) {
+        scrollToSection(1); // Bottom to middle
+      } else if (deltaY < 0 && currentIndex === 1) {
+        scrollToSection(0); // Middle to top
       }
     };
 
