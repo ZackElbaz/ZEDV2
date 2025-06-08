@@ -15,15 +15,14 @@
   position: relative;
 }
 
-/* Portrait layout */
 .portrait-layout {
-  overflow-y: scroll;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  overflow-y: hidden; /* Disable native scroll */
+  overscroll-behavior: none;
+  touch-action: none; /* Fully disable native swipe gestures */
   position: relative;
   z-index: 1;
 }
+
 
 /* Landscape layout */
 .landscape-layout {

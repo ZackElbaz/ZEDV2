@@ -402,6 +402,12 @@ function ContactPage() {
 
     const handleTouchStart = (e) => {
       touchStartY = e.touches[0].clientY;
+      currentIndex = Math.round(container.scrollTop / sectionHeight);
+    };
+
+    const handleTouchMove = (e) => {
+      // Prevent native scroll while swiping
+      e.preventDefault();
     };
 
     const handleTouchEnd = (e) => {
@@ -412,23 +418,20 @@ function ContactPage() {
 
       if (Math.abs(deltaY) < 30) return;
 
-      // Determine the current index BEFORE applying any scroll change
-      currentIndex = Math.round(container.scrollTop / sectionHeight);
-
       if (deltaY > 0 && currentIndex < sections.length - 1) {
-        // Swipe up
         scrollToSection(currentIndex + 1);
       } else if (deltaY < 0 && currentIndex > 0) {
-        // Swipe down
         scrollToSection(currentIndex - 1);
       }
     };
 
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchmove", handleTouchMove, { passive: false });
     container.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
       container.removeEventListener("touchend", handleTouchEnd);
     };
   }, [isPortrait, sectionHeight, sections.length]);
@@ -460,11 +463,12 @@ function ContactPage() {
           style={{
             height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
             marginTop: `${headerHeight}px`,
-            overflowY: isPortrait ? "scroll" : "hidden",
+            overflowY: isPortrait ? "hidden" : "hidden",
             overflowX: isPortrait ? "hidden" : "scroll",
             scrollSnapType: isPortrait ? "none" : "x mandatory",
             scrollBehavior: "smooth",
             WebkitOverflowScrolling: "touch",
+            touchAction: "none",
           }}
         >
           {sections.map(({ id, label, className }) => (
