@@ -385,7 +385,7 @@ function ContactPage() {
       return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     };
 
-    const blobColor = getRandomMutedNeonColor();
+    const blobColor = getRandomVibrantNeonColor();
     const inverseColor = invertHexColor(blobColor);
 
     const root = document.documentElement;
