@@ -17,8 +17,10 @@
   scroll-snap-type: none;
   scroll-behavior: auto;
   overscroll-behavior: contain;
-  overflow-y: scroll;
+  overflow-y: hidden;      /* Changed from scroll */
+  touch-action: none;      /* Prevent default scroll behavior on touch */
 }
+
 
 
 /* Landscape layout */

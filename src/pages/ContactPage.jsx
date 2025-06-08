@@ -241,7 +241,7 @@ function ContactPage() {
     { id: 3, label: "Message", className: "section-3" },
   ];
 
-  // 🔁 Portrait mode swipe/scroll control logic
+  // 📱 Mobile vertical swipe behavior (one section per swipe)
   useEffect(() => {
     if (!isPortrait) return;
 
@@ -253,16 +253,15 @@ function ContactPage() {
     let touchStartY = 0;
 
     const scrollToSection = (index) => {
-      if (isAnimating) return;
       isAnimating = true;
       currentIndex = Math.max(0, Math.min(sections.length - 1, index));
 
-      const targetOffset = currentIndex * sectionHeight;
-
       container.scrollTo({
-        top: targetOffset,
+        top: currentIndex * sectionHeight,
         behavior: "smooth",
       });
+
+      const targetOffset = currentIndex * sectionHeight;
 
       const checkIfDone = () => {
         const distance = Math.abs(container.scrollTop - targetOffset);
@@ -274,17 +273,6 @@ function ContactPage() {
       };
 
       requestAnimationFrame(checkIfDone);
-    };
-
-    const handleWheel = (e) => {
-      if (isAnimating) return;
-      if (Math.abs(e.deltaY) < 10) return;
-
-      if (e.deltaY > 0 && currentIndex < sections.length - 1) {
-        scrollToSection(currentIndex + 1);
-      } else if (e.deltaY < 0 && currentIndex > 0) {
-        scrollToSection(currentIndex - 1);
-      }
     };
 
     const handleTouchStart = (e) => {
@@ -305,14 +293,13 @@ function ContactPage() {
       }
     };
 
+    // Sync index on mount
     currentIndex = Math.round(container.scrollTop / sectionHeight);
 
-    container.addEventListener("wheel", handleWheel, { passive: true });
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
     container.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
-      container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("touchstart", handleTouchStart);
       container.removeEventListener("touchend", handleTouchEnd);
     };
@@ -496,4 +483,3 @@ function ContactPage() {
 }
 
 export default ContactPage;
-
