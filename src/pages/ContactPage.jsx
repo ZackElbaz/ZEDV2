@@ -374,7 +374,7 @@ function ContactPage() {
     const container = layoutRef.current;
     if (!container) return;
 
-    let currentIndex = Math.round(container.scrollTop / sectionHeight);
+    let currentIndex = 0;
     let touchStartY = 0;
     let isSnapping = false;
 
@@ -402,7 +402,6 @@ function ContactPage() {
 
     const handleTouchStart = (e) => {
       touchStartY = e.touches[0].clientY;
-      currentIndex = Math.round(container.scrollTop / sectionHeight);
     };
 
     const handleTouchEnd = (e) => {
@@ -413,9 +412,14 @@ function ContactPage() {
 
       if (Math.abs(deltaY) < 30) return;
 
+      // Determine the current index BEFORE applying any scroll change
+      currentIndex = Math.round(container.scrollTop / sectionHeight);
+
       if (deltaY > 0 && currentIndex < sections.length - 1) {
+        // Swipe up
         scrollToSection(currentIndex + 1);
       } else if (deltaY < 0 && currentIndex > 0) {
+        // Swipe down
         scrollToSection(currentIndex - 1);
       }
     };
@@ -597,3 +601,4 @@ function ContactPage() {
 }
 
 export default ContactPage;
+
