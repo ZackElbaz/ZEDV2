@@ -504,9 +504,34 @@ function ContactPage() {
   };
 
   useEffect(() => {
-    setTimeout(updateLayout, 50);
+    updateLayout();
+
+    const observer = new ResizeObserver(() => {
+      updateLayout();
+    });
+
+    if (layoutRef.current) observer.observe(layoutRef.current);
+    if (headerRef.current) observer.observe(headerRef.current);
+    if (footerRef.current) observer.observe(footerRef.current);
+
+    window.addEventListener("load", updateLayout);
     window.addEventListener("resize", updateLayout);
-    return () => window.removeEventListener("resize", updateLayout);
+
+    const forceScrollEvent = () => {
+      const container = layoutRef.current;
+      if (container) {
+        container.dispatchEvent(new Event("scroll"));
+      }
+    };
+
+    const scrollTriggerTimeout = setTimeout(forceScrollEvent, 100);
+
+    return () => {
+      window.removeEventListener("load", updateLayout);
+      window.removeEventListener("resize", updateLayout);
+      observer.disconnect();
+      clearTimeout(scrollTriggerTimeout);
+    };
   }, []);
 
   const sections = [
@@ -516,7 +541,7 @@ function ContactPage() {
   ];
 
   useEffect(() => {
-    if (!isPortrait) return;
+    if (!isPortrait || sectionHeight === 0) return;
 
     const container = layoutRef.current;
     if (!container) return;
@@ -559,10 +584,14 @@ function ContactPage() {
 
       if (Math.abs(deltaY) < 30) return;
 
-      if (deltaY > 0 && currentIndex < sections.length - 1) {
-        scrollToSection(currentIndex + 1);
-      } else if (deltaY < 0 && currentIndex > 0) {
-        scrollToSection(currentIndex - 1);
+      if (deltaY > 0 && currentIndex === 0) {
+        scrollToSection(1); // Top to middle
+      } else if (deltaY > 0 && currentIndex === 1) {
+        scrollToSection(2); // Middle to bottom
+      } else if (deltaY < 0 && currentIndex === 2) {
+        scrollToSection(1); // Bottom to middle
+      } else if (deltaY < 0 && currentIndex === 1) {
+        scrollToSection(0); // Middle to top
       }
     };
 
@@ -600,7 +629,7 @@ function ContactPage() {
           ref={layoutRef}
           className={isPortrait ? "portrait-layout" : "landscape-layout"}
           style={{
-            height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
+            height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)` ,
             marginTop: `${headerHeight}px`,
             overflowY: isPortrait ? "scroll" : "hidden",
             overflowX: isPortrait ? "hidden" : "scroll",
@@ -632,7 +661,7 @@ function ContactPage() {
                   <h3 className="contact-title">Who I am:</h3>
                   <h2>Zack El-baz</h2>
                   <p>
-                    Application Engineer at{" "}
+                    Application Engineer at {" "}
                     <a
                       href="https://www.volklec.com"
                       target="_blank"
