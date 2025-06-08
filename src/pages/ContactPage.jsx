@@ -357,8 +357,8 @@ function ContactPage() {
     // Generate random muted neon color
     const getRandomMutedNeonColor = () => {
       const hue = Math.floor(Math.random() * 360);
-      const saturation = 100;
-      const lightness = 55;
+      const saturation = 85 + Math.random() * 15; // 85–100%
+      const lightness = 50 + Math.random() * 20;  // 50–70%
       const hslToHex = (h, s, l) => {
         s /= 100;
         l /= 100;
@@ -370,6 +370,7 @@ function ContactPage() {
       };
       return hslToHex(hue, saturation, lightness);
     };
+
 
     // Invert hex color
     const invertHexColor = (hex) => {
