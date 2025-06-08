@@ -241,36 +241,55 @@ function ContactPage() {
     { id: 3, label: "Message", className: "section-3" },
   ];
 
-  // Manual scroll snapping logic
+  // Enhanced scroll snapping logic
   useEffect(() => {
     if (!isPortrait) return;
 
     const container = layoutRef.current;
     if (!container) return;
 
-    let timeout;
+    let lastScrollTop = 0;
+    let isSnapping = false;
 
-    const handleSnapScroll = () => {
-      if (!container) return;
+    const handleScroll = () => {
+      if (isSnapping) return;
 
       const scrollTop = container.scrollTop;
-      const sectionIndex = Math.round(scrollTop / sectionHeight);
-      const clampedIndex = Math.max(0, Math.min(sections.length - 1, sectionIndex));
-      const targetScroll = clampedIndex * sectionHeight;
+      const direction = scrollTop > lastScrollTop ? "down" : "up";
+      lastScrollTop = scrollTop;
+
+      isSnapping = true;
+
+      const currentIndex = Math.round(scrollTop / sectionHeight);
+      const nextIndex = direction === "down"
+        ? Math.min(sections.length - 1, currentIndex + 1)
+        : Math.max(0, currentIndex - 1);
+
+      const targetScroll = nextIndex * sectionHeight;
 
       container.scrollTo({
         top: targetScroll,
         behavior: "smooth"
       });
+
+      setTimeout(() => {
+        isSnapping = false;
+        lastScrollTop = container.scrollTop;
+      }, 500);
     };
 
-    const handleScroll = () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(handleSnapScroll, 100);
+    const debounce = (fn, delay = 100) => {
+      let timer;
+      return () => {
+        clearTimeout(timer);
+        timer = setTimeout(fn, delay);
+      };
     };
 
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
+    const debouncedScroll = debounce(handleScroll, 100);
+    container.addEventListener("scroll", debouncedScroll);
+
+    return () => container.removeEventListener("scroll", debouncedScroll);
   }, [isPortrait, sectionHeight]);
 
   const handleSubmit = (e) => {
@@ -451,4 +470,5 @@ function ContactPage() {
 }
 
 export default ContactPage;
+
 
