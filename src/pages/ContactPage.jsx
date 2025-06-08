@@ -224,6 +224,7 @@ function ContactPage() {
   const updateLayout = () => {
     if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
     if (footerRef.current) setFooterHeight(footerRef.current.offsetHeight);
+    if (layoutRef.current) setSectionHeight(layoutRef.current.offsetHeight);
     setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
   };
 
