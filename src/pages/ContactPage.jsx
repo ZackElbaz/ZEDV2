@@ -277,6 +277,7 @@ function ContactPage() {
 
     const handleTouchStart = (e) => {
       touchStartY = e.touches[0].clientY;
+      currentIndex = Math.round(container.scrollTop / sectionHeight); // 🔄 sync index
     };
 
     const handleTouchEnd = (e) => {
