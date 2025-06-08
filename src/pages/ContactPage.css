@@ -15,11 +15,13 @@
 
 /* Portrait layout with snap scroll */
 .portrait-layout {
-  overscroll-behavior: none;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
   scroll-snap-type: y mandatory;
-  touch-action: pan-x; /* Prevent vertical pan momentum */
+  scroll-behavior: smooth;
+  height: 100%;
 }
-
 
 /* Landscape layout */
 .landscape-layout {
