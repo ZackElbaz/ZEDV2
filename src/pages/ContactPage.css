@@ -1,6 +1,7 @@
 /* ContactPage.css */
 :root {
-  --hover-highlight: #00ffa6;
+  --blob-color: #ff8000; /* hot pink #ff0059*/
+  --hover-highlight: #00ffa6; /* fallback inverse */
 }
 
 .page-container {
@@ -77,7 +78,7 @@
 .message-form button:hover {
   background-color: var(--hover-highlight);
   color: black;
-  box-shadow: 0 0 8px rgba(0, 255, 166, 0.4);
+  box-shadow: var(--hover-highlight);
   cursor: pointer;
 }
 

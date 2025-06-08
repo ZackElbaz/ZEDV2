@@ -21,7 +21,7 @@
 
 .blob {
   border-radius: 50%;
-  background-image: linear-gradient(-206deg, #ff0059 0%, #ff0059 100%);
+  background-image: linear-gradient(-206deg, var(--blob-color) 0%, var(--blob-color) 100%);
   position: absolute;
 }
 
