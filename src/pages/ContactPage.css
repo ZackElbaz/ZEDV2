@@ -18,10 +18,12 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: none;
+  scroll-behavior: auto;
   height: 100%;
 }
+
 
 /* Landscape layout */
 .landscape-layout {

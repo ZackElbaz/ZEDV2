@@ -241,6 +241,38 @@ function ContactPage() {
     { id: 3, label: "Message", className: "section-3" },
   ];
 
+  // Manual scroll snapping logic
+  useEffect(() => {
+    if (!isPortrait) return;
+
+    const container = layoutRef.current;
+    if (!container) return;
+
+    let timeout;
+
+    const handleSnapScroll = () => {
+      if (!container) return;
+
+      const scrollTop = container.scrollTop;
+      const sectionIndex = Math.round(scrollTop / sectionHeight);
+      const clampedIndex = Math.max(0, Math.min(sections.length - 1, sectionIndex));
+      const targetScroll = clampedIndex * sectionHeight;
+
+      container.scrollTo({
+        top: targetScroll,
+        behavior: "smooth"
+      });
+    };
+
+    const handleScroll = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(handleSnapScroll, 100);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [isPortrait, sectionHeight]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const name = e.target.name.value;
@@ -273,7 +305,7 @@ function ContactPage() {
             marginTop: `${headerHeight}px`,
             overflowY: isPortrait ? "scroll" : "hidden",
             overflowX: isPortrait ? "hidden" : "scroll",
-            scrollSnapType: isPortrait ? "y mandatory" : "x mandatory",
+            scrollSnapType: isPortrait ? "none" : "x mandatory",
             scrollBehavior: "smooth"
           }}
         >
@@ -419,3 +451,4 @@ function ContactPage() {
 }
 
 export default ContactPage;
+
