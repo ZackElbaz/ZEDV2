@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  font-family: var(--font-main); /* ✅ Global font for ContactPage */
+  font-family: var(--font-main);
 }
 
 .contact-content {
@@ -13,22 +13,21 @@
   position: relative;
 }
 
+/* Portrait layout — default scroll behavior */
 .portrait-layout {
   scroll-snap-type: none;
   scroll-behavior: auto;
   overscroll-behavior: contain;
-  overflow-y: hidden;      /* Changed from scroll */
-  touch-action: none;      /* Prevent default scroll behavior on touch */
+  /* Don't override overflow here unless absolutely needed */
 }
-
-
 
 /* Landscape layout */
 .landscape-layout {
   display: flex;
   flex-direction: row;
   overflow-x: auto;
-  height: 100%;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
 }
 
 /* Common Section Styles */
@@ -49,12 +48,8 @@
 }
 
 .section-2 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #bfdb34; /* your existing map section background */
+  background-color: #bfdb34;
 }
-
 
 .section-3 {
   background-color: #2ecc71;
@@ -80,31 +75,27 @@
 
 .contact-info h2 {
   font-size: 2rem;
-  font-family: var(--font-main);
   margin: 0;
 }
 
 .contact-info p {
   font-size: 1.2rem;
-  font-family: var(--font-main);
-  margin: 0;
   color: #f0f0f0;
+  margin: 0;
 }
 
 .contact-links {
   display: flex;
-  flex-direction: column; /* stacks links vertically */
+  flex-direction: column;
   gap: 10px;
   margin-top: 10px;
-  align-items: center; /* optional: center-align the links horizontally */
+  align-items: center;
 }
-
 
 .contact-links a {
   color: white;
   text-decoration: underline;
   font-size: 1.1rem;
-  font-family: var(--font-main);
   transition: color 0.2s ease;
 }
 
@@ -112,12 +103,10 @@
   color: #ddd;
 }
 
-/* Volklec link in job title */
 .company-link {
   color: white;
   text-decoration: underline;
   font-weight: 500;
-  font-family: var(--font-main);
   transition: color 0.2s ease;
 }
 
@@ -125,7 +114,7 @@
   color: #ddd;
 }
 
-
+/* Map container */
 .map-container {
   display: flex;
   align-items: center;
@@ -136,8 +125,8 @@
   max-height: 500px;
   border-radius: 16px;
   overflow: hidden;
-  background-color: transparent; /* ✅ No white fill */
-  box-shadow: none; /* ✅ No shadow */
+  background-color: transparent;
+  box-shadow: none;
   padding: 0;
 }
 
@@ -145,8 +134,7 @@
   width: 100% !important;
   height: 100% !important;
   border: none !important;
-  border-radius: 0 !important;
+  background: none !important;
   margin: 0;
   padding: 0;
-  background: none !important;
 }
