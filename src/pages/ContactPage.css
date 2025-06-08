@@ -1,4 +1,7 @@
 /* ContactPage.css */
+:root {
+  --hover-highlight: #00ffa6;
+}
 
 .page-container {
   display: flex;
@@ -68,9 +71,13 @@
   transition: box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.message-form button:hover {
-  background-color: #1f9d5a; /* or another subtle highlight */
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+/* Hover all fields together when any are hovered */
+.message-form:hover input,
+.message-form:hover textarea,
+.message-form:hover button {
+  background-color: var(--hover-highlight);
+  color: black; /* optional: adjust contrast */
+  box-shadow: 0 0 8px rgba(0, 255, 166, 0.4);
   cursor: pointer;
 }
 
