@@ -355,10 +355,11 @@ function ContactPage() {
 
   useEffect(() => {
     // Generate random muted neon color
-    const getRandomMutedNeonColor = () => {
-      const hue = Math.floor(Math.random() * 360);
-      const saturation = 85 + Math.random() * 15; // 85–100%
-      const lightness = 50 + Math.random() * 20;  // 50–70%
+    const getRandomVibrantNeonColor = () => {
+      const hue = Math.floor(Math.random() * 360);       // full rainbow
+      const saturation = 100;                            // max color intensity
+      const lightness = 50 + Math.random() * 10;         // 50–60% = vibrant
+
       const hslToHex = (h, s, l) => {
         s /= 100;
         l /= 100;
@@ -368,8 +369,10 @@ function ContactPage() {
           Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))));
         return `#${[f(0), f(8), f(4)].map(x => x.toString(16).padStart(2, "0")).join("")}`;
       };
+
       return hslToHex(hue, saturation, lightness);
     };
+
 
 
     // Invert hex color
