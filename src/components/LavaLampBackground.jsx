@@ -72,13 +72,13 @@ const generateRandomBlob = (index) => {
   return style;
 };
 const getBlobCountFromAspectRatio = () => {
+  const baseBlobs = 5;
+  const stepSize = 0.5;
+  const maxExtraBlobs = 7;
   const aspectRatio = window.innerWidth / window.innerHeight;
 
-  if (aspectRatio < 1) return 6; // Portrait or square-ish
-  if (aspectRatio < 1.5) return 7;
-  if (aspectRatio < 2) return 8;
-  if (aspectRatio < 2.5) return 9;
-  return 10; // Very wide screens
+  const steps = Math.floor(aspectRatio / stepSize);
+  return baseBlobs + Math.min(steps, maxExtraBlobs);
 };
 
 
