@@ -219,10 +219,8 @@ function ContactPage() {
 
   const [headerHeight, setHeaderHeight] = useState(0);
   const [footerHeight, setFooterHeight] = useState(0);
-  const [sectionHeight, setSectionHeight] = useState(0);
-  const [isPortrait, setIsPortrait] = useState(
-    window.matchMedia("(orientation: portrait)").matches
-  );
+  
+  const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
 
   const updateLayout = () => {
     if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
@@ -237,51 +235,55 @@ function ContactPage() {
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
+  const sectionHeight = window.innerHeight - headerHeight - footerHeight;
+
   const sections = [
     { id: 1, label: "About Me", className: "section-1" },
     { id: 2, label: "Map", className: "section-2" },
     { id: 3, label: "Message", className: "section-3" },
   ];
 
+  // 📱 Mobile vertical swipe behavior (one section per swipe)
   useEffect(() => {
     if (!isPortrait) return;
 
     const container = layoutRef.current;
     if (!container) return;
 
-    let currentIndex = Math.round(container.scrollTop / sectionHeight);
+    let currentIndex = 0;
+    let isAnimating = false;
     let touchStartY = 0;
-    let isSnapping = false;
 
     const scrollToSection = (index) => {
-      isSnapping = true;
-      const clampedIndex = Math.max(0, Math.min(sections.length - 1, index));
-      currentIndex = clampedIndex;
-      const targetOffset = clampedIndex * sectionHeight;
+      isAnimating = true;
+      currentIndex = Math.max(0, Math.min(sections.length - 1, index));
 
       container.scrollTo({
-        top: targetOffset,
+        top: currentIndex * sectionHeight,
         behavior: "smooth",
       });
 
-      const checkScrollSettled = () => {
+      const targetOffset = currentIndex * sectionHeight;
+
+      const checkIfDone = () => {
         const distance = Math.abs(container.scrollTop - targetOffset);
         if (distance < 2) {
-          isSnapping = false;
+          isAnimating = false;
         } else {
-          requestAnimationFrame(checkScrollSettled);
+          requestAnimationFrame(checkIfDone);
         }
       };
-      requestAnimationFrame(checkScrollSettled);
+
+      requestAnimationFrame(checkIfDone);
     };
 
     const handleTouchStart = (e) => {
       touchStartY = e.touches[0].clientY;
-      currentIndex = Math.round(container.scrollTop / sectionHeight);
+      currentIndex = Math.round(container.scrollTop / sectionHeight); // 🔄 sync index
     };
 
     const handleTouchEnd = (e) => {
-      if (isSnapping) return;
+      if (isAnimating) return;
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
 
@@ -293,6 +295,9 @@ function ContactPage() {
         scrollToSection(currentIndex - 1);
       }
     };
+
+    // Sync index on mount
+    currentIndex = Math.round(container.scrollTop / sectionHeight);
 
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
     container.addEventListener("touchend", handleTouchEnd, { passive: true });
@@ -320,10 +325,13 @@ function ContactPage() {
         style={{
           paddingBottom: `${footerHeight}px`,
           position: "relative",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
       >
-        <LavaLampBackground topOffset={headerHeight} bottomOffset={footerHeight} />
+        <LavaLampBackground
+          topOffset={headerHeight}
+          bottomOffset={footerHeight}
+        />
         <div
           ref={layoutRef}
           className={isPortrait ? "portrait-layout" : "landscape-layout"}
@@ -333,7 +341,7 @@ function ContactPage() {
             overflowY: isPortrait ? "scroll" : "hidden",
             overflowX: isPortrait ? "hidden" : "scroll",
             scrollSnapType: isPortrait ? "none" : "x mandatory",
-            scrollBehavior: "smooth",
+            scrollBehavior: "smooth"
           }}
         >
           {sections.map(({ id, label, className }) => (
@@ -410,7 +418,7 @@ function ContactPage() {
                     width: "100%",
                     gap: "20px",
                     padding: "0 20px",
-                    boxSizing: "border-box",
+                    boxSizing: "border-box"
                   }}
                 >
                   <input
@@ -418,14 +426,22 @@ function ContactPage() {
                     name="name"
                     placeholder="Name"
                     required
-                    style={{ width: formFieldWidth, maxWidth: "500px", padding: "10px" }}
+                    style={{
+                      width: formFieldWidth,
+                      maxWidth: "500px",
+                      padding: "10px"
+                    }}
                   />
                   <input
                     type="email"
                     name="email"
                     placeholder="Your E-mail address"
                     required
-                    style={{ width: formFieldWidth, maxWidth: "500px", padding: "10px" }}
+                    style={{
+                      width: formFieldWidth,
+                      maxWidth: "500px",
+                      padding: "10px"
+                    }}
                   />
                   <textarea
                     name="message"
@@ -435,7 +451,7 @@ function ContactPage() {
                       width: formFieldWidth,
                       maxWidth: "500px",
                       padding: "10px",
-                      height: "150px",
+                      height: "150px"
                     }}
                   />
                   <button
@@ -448,7 +464,7 @@ function ContactPage() {
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      textAlign: "center",
+                      textAlign: "center"
                     }}
                   >
                     Send Message
