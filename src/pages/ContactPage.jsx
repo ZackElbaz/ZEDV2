@@ -270,7 +270,11 @@ function ContactPage() {
           className={isPortrait ? "portrait-layout" : "landscape-layout"}
           style={{
             height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
-            marginTop: `${headerHeight}px`
+            marginTop: `${headerHeight}px`,
+            overflowY: isPortrait ? "scroll" : "hidden",
+            overflowX: isPortrait ? "hidden" : "scroll",
+            scrollSnapType: isPortrait ? "y mandatory" : "x mandatory",
+            scrollBehavior: "smooth"
           }}
         >
           {sections.map(({ id, label, className }) => (
