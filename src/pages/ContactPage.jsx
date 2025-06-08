@@ -67,6 +67,28 @@ function ContactPage() {
   ];
 
   useEffect(() => {
+    const invertHexColor = (hex) => {
+      const cleanHex = hex.replace("#", "").padStart(6, "0");
+
+      const r = 255 - parseInt(cleanHex.slice(0, 2), 16);
+      const g = 255 - parseInt(cleanHex.slice(2, 4), 16);
+      const b = 255 - parseInt(cleanHex.slice(4, 6), 16);
+
+      const toHex = (n) => n.toString(16).padStart(2, "0");
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    };
+
+    const rootStyle = getComputedStyle(document.documentElement);
+    const blobColor = rootStyle.getPropertyValue("--blob-color").trim();
+
+    if (/^#[0-9A-Fa-f]{6}$/.test(blobColor)) {
+      const inverted = invertHexColor(blobColor);
+      document.documentElement.style.setProperty("--hover-highlight", inverted);
+    }
+  }, []);
+
+
+  useEffect(() => {
     if (!isPortrait || sectionHeight === 0) return;
 
     const container = layoutRef.current;
