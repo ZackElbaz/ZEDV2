@@ -291,7 +291,8 @@ function ContactPage() {
                 justifyContent: "center",
                 backgroundColor: "transparent",
                 position: "relative",
-                zIndex: 1
+                zIndex: 1,
+                scrollSnapAlign: "start",
               }}
             >
               {label === "About Me" ? (
