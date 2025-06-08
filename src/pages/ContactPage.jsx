@@ -241,7 +241,7 @@ function ContactPage() {
     { id: 3, label: "Message", className: "section-3" },
   ];
 
-  // Controlled scroll snapping
+  // 🔁 Portrait mode swipe/scroll control logic
   useEffect(() => {
     if (!isPortrait) return;
 
@@ -253,15 +253,27 @@ function ContactPage() {
     let touchStartY = 0;
 
     const scrollToSection = (index) => {
+      if (isAnimating) return;
       isAnimating = true;
       currentIndex = Math.max(0, Math.min(sections.length - 1, index));
+
+      const targetOffset = currentIndex * sectionHeight;
+
       container.scrollTo({
-        top: currentIndex * sectionHeight,
+        top: targetOffset,
         behavior: "smooth",
       });
-      setTimeout(() => {
-        isAnimating = false;
-      }, 500);
+
+      const checkIfDone = () => {
+        const distance = Math.abs(container.scrollTop - targetOffset);
+        if (distance < 2) {
+          isAnimating = false;
+        } else {
+          requestAnimationFrame(checkIfDone);
+        }
+      };
+
+      requestAnimationFrame(checkIfDone);
     };
 
     const handleWheel = (e) => {
@@ -281,7 +293,6 @@ function ContactPage() {
 
     const handleTouchEnd = (e) => {
       if (isAnimating) return;
-
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
 
@@ -485,3 +496,4 @@ function ContactPage() {
 }
 
 export default ContactPage;
+
