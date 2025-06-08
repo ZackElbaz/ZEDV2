@@ -58,6 +58,15 @@
   background-color: #2ecc71;
 }
 
+.message-form input,
+.message-form textarea {
+  border-radius: 12px; /* Adjust radius as needed */
+  border: none; /* Optional: remove borders */
+  outline: none; /* Optional: remove focus outline */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1); /* Optional: soft shadow */
+}
+
+
 /* Landscape widths */
 @media (orientation: landscape) {
   .horizontal-section.section-1,
