@@ -241,56 +241,71 @@ function ContactPage() {
     { id: 3, label: "Message", className: "section-3" },
   ];
 
-  // Enhanced scroll snapping logic
+  // Controlled scroll snapping
   useEffect(() => {
     if (!isPortrait) return;
 
     const container = layoutRef.current;
     if (!container) return;
 
-    let lastScrollTop = 0;
-    let isSnapping = false;
+    let currentIndex = 0;
+    let isAnimating = false;
+    let touchStartY = 0;
 
-    const handleScroll = () => {
-      if (isSnapping) return;
-
-      const scrollTop = container.scrollTop;
-      const direction = scrollTop > lastScrollTop ? "down" : "up";
-      lastScrollTop = scrollTop;
-
-      isSnapping = true;
-
-      const currentIndex = Math.round(scrollTop / sectionHeight);
-      const nextIndex = direction === "down"
-        ? Math.min(sections.length - 1, currentIndex + 1)
-        : Math.max(0, currentIndex - 1);
-
-      const targetScroll = nextIndex * sectionHeight;
-
+    const scrollToSection = (index) => {
+      isAnimating = true;
+      currentIndex = Math.max(0, Math.min(sections.length - 1, index));
       container.scrollTo({
-        top: targetScroll,
-        behavior: "smooth"
+        top: currentIndex * sectionHeight,
+        behavior: "smooth",
       });
-
       setTimeout(() => {
-        isSnapping = false;
-        lastScrollTop = container.scrollTop;
+        isAnimating = false;
       }, 500);
     };
 
-    const debounce = (fn, delay = 100) => {
-      let timer;
-      return () => {
-        clearTimeout(timer);
-        timer = setTimeout(fn, delay);
-      };
+    const handleWheel = (e) => {
+      if (isAnimating) return;
+      if (Math.abs(e.deltaY) < 10) return;
+
+      if (e.deltaY > 0 && currentIndex < sections.length - 1) {
+        scrollToSection(currentIndex + 1);
+      } else if (e.deltaY < 0 && currentIndex > 0) {
+        scrollToSection(currentIndex - 1);
+      }
     };
 
-    const debouncedScroll = debounce(handleScroll, 100);
-    container.addEventListener("scroll", debouncedScroll);
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
 
-    return () => container.removeEventListener("scroll", debouncedScroll);
-  }, [isPortrait, sectionHeight]);
+    const handleTouchEnd = (e) => {
+      if (isAnimating) return;
+
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchStartY - touchEndY;
+
+      if (Math.abs(deltaY) < 30) return;
+
+      if (deltaY > 0 && currentIndex < sections.length - 1) {
+        scrollToSection(currentIndex + 1);
+      } else if (deltaY < 0 && currentIndex > 0) {
+        scrollToSection(currentIndex - 1);
+      }
+    };
+
+    currentIndex = Math.round(container.scrollTop / sectionHeight);
+
+    container.addEventListener("wheel", handleWheel, { passive: true });
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [isPortrait, sectionHeight, sections.length]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -470,5 +485,3 @@ function ContactPage() {
 }
 
 export default ContactPage;
-
-

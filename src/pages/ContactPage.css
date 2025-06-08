@@ -13,17 +13,12 @@
   position: relative;
 }
 
-/* Portrait layout with snap scroll */
 .portrait-layout {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
   scroll-snap-type: none;
   scroll-behavior: auto;
-  height: 100%;
+  overscroll-behavior: contain;
+  overflow-y: scroll;
 }
-
 
 /* Landscape layout */
 .landscape-layout {
