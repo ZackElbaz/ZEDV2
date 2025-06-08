@@ -59,13 +59,20 @@
 }
 
 .message-form input,
-.message-form textarea {
-  border-radius: 12px; /* Adjust radius as needed */
-  border: none; /* Optional: remove borders */
-  outline: none; /* Optional: remove focus outline */
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1); /* Optional: soft shadow */
+.message-form textarea,
+.message-form button {
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
+.message-form button:hover {
+  background-color: #1f9d5a; /* or another subtle highlight */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
 
 /* Landscape widths */
 @media (orientation: landscape) {
