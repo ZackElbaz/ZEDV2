@@ -472,6 +472,7 @@
 // export default ContactPage;
 
 
+// ContactPage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
@@ -503,21 +504,33 @@ function ContactPage() {
   };
 
   useEffect(() => {
-    const handleInitialLayout = () => requestAnimationFrame(updateLayout);
-    window.addEventListener("load", handleInitialLayout);
-    window.addEventListener("resize", updateLayout);
+    updateLayout();
 
-    const observer = new ResizeObserver(updateLayout);
+    const observer = new ResizeObserver(() => {
+      updateLayout();
+    });
+
+    if (layoutRef.current) observer.observe(layoutRef.current);
     if (headerRef.current) observer.observe(headerRef.current);
     if (footerRef.current) observer.observe(footerRef.current);
-    if (layoutRef.current) observer.observe(layoutRef.current);
 
-    handleInitialLayout();
+    window.addEventListener("load", updateLayout);
+    window.addEventListener("resize", updateLayout);
+
+    const forceScrollEvent = () => {
+      const container = layoutRef.current;
+      if (container) {
+        container.dispatchEvent(new Event("scroll"));
+      }
+    };
+
+    const scrollTriggerTimeout = setTimeout(forceScrollEvent, 100);
 
     return () => {
-      window.removeEventListener("load", handleInitialLayout);
+      window.removeEventListener("load", updateLayout);
       window.removeEventListener("resize", updateLayout);
       observer.disconnect();
+      clearTimeout(scrollTriggerTimeout);
     };
   }, []);
 
@@ -528,7 +541,7 @@ function ContactPage() {
   ];
 
   useEffect(() => {
-    if (!isPortrait) return;
+    if (!isPortrait || sectionHeight === 0) return;
 
     const container = layoutRef.current;
     if (!container) return;
@@ -612,12 +625,13 @@ function ContactPage() {
           ref={layoutRef}
           className={isPortrait ? "portrait-layout" : "landscape-layout"}
           style={{
-            height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
+            height: `calc(100vh - ${headerHeight}px - ${footerHeight}px)` ,
             marginTop: `${headerHeight}px`,
             overflowY: isPortrait ? "scroll" : "hidden",
             overflowX: isPortrait ? "hidden" : "scroll",
             scrollSnapType: isPortrait ? "none" : "x mandatory",
             scrollBehavior: "smooth",
+            WebkitOverflowScrolling: "touch",
           }}
         >
           {sections.map(({ id, label, className }) => (
@@ -643,7 +657,7 @@ function ContactPage() {
                   <h3 className="contact-title">Who I am:</h3>
                   <h2>Zack El-baz</h2>
                   <p>
-                    Application Engineer at{" "}
+                    Application Engineer at {" "}
                     <a
                       href="https://www.volklec.com"
                       target="_blank"
