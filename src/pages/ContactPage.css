@@ -71,12 +71,12 @@
   transition: box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-/* Hover all fields together when any are hovered */
-.message-form:hover input,
-.message-form:hover textarea,
-.message-form:hover button {
+/* Each field reacts only to its own hover */
+.message-form input:hover,
+.message-form textarea:hover,
+.message-form button:hover {
   background-color: var(--hover-highlight);
-  color: black; /* optional: adjust contrast */
+  color: black;
   box-shadow: 0 0 8px rgba(0, 255, 166, 0.4);
   cursor: pointer;
 }
