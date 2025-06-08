@@ -71,6 +71,16 @@ const generateRandomBlob = (index) => {
 
   return style;
 };
+const getBlobCountFromAspectRatio = () => {
+  const aspectRatio = window.innerWidth / window.innerHeight;
+
+  if (aspectRatio < 1) return 6; // Portrait or square-ish
+  if (aspectRatio < 1.5) return 7;
+  if (aspectRatio < 2) return 8;
+  if (aspectRatio < 2.5) return 9;
+  return 10; // Very wide screens
+};
+
 
 const generateKeyframes = (index, maxHeightPercent) => {
   const keyframes = `
@@ -83,7 +93,7 @@ const generateKeyframes = (index, maxHeightPercent) => {
 };
 
 const LavaLampBackground = ({ topOffset = 0, bottomOffset = 0 }) => {
-  const blobCount = 8;
+  const blobCount = getBlobCountFromAspectRatio();;
   const blobs = Array.from({ length: blobCount }, (_, i) => {
     const style = generateRandomBlob(i);
     const maxTranslate = Math.floor(Math.random() * 500) + 200; // 200% to 700%
