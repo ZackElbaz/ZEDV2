@@ -170,7 +170,6 @@ const LavaLampBackground = ({ topOffset = 0, bottomOffset = 0 }) => {
         {blobs.map((blob, i) => (
           <div className="blob" key={i} style={blob.style}></div>
         ))}
-        <div className="blob top"></div>
         <div className="blob bottom"></div>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
