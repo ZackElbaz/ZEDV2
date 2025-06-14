@@ -35,7 +35,7 @@
 
 @media (orientation: portrait) {
   .blob.top {
-    top: 0; /* or top: 1% if you want a slight offset */
+    top: -10%; /* or top: 1% if you want a slight offset */
   }
 }
 
@@ -52,6 +52,7 @@
     bottom: 0; /* or top: 1% if you want a slight offset */
   }
 }
+
 /* Individual blobs with animation */
 .blob:nth-child(1) {
   width: 200px;
