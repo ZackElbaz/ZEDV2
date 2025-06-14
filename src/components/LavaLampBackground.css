@@ -35,7 +35,9 @@
 
 @media (orientation: portrait) {
   .blob.top {
-    top: 10%; /* or top: 1% if you want a slight offset */
+    top: 40%;
+    border: 2px solid red;
+    background-color: yellow;
   }
 }
 
