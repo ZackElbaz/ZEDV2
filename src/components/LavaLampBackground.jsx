@@ -165,6 +165,8 @@ const LavaLampBackground = ({ topOffset = 0, bottomOffset = 0 }) => {
     >
       <style>{blobs.map((b) => b.keyframe).join("\n")}</style>
       <div className="lava">
+        <div className="blob static top"></div>
+        <div className="blob static bottom"></div>
         {blobs.map((blob, i) => (
           <div className="blob" key={i} style={blob.style}></div>
         ))}

@@ -33,12 +33,11 @@
   left: 0;
 }
 
-@media (orientation: portrait) {
-  .blob.top {
-    top: 40%;
-    border: 2px solid red;
-    background-color: yellow;
-  }
+
+.blob.static {
+  animation: none !important;
+  transform: none !important;
+  background-image: linear-gradient(-206deg, var(--blob-color), var(--blob-color));
 }
 
 
