@@ -519,7 +519,9 @@ function ContactPage() {
           overflow: "hidden",
         }}
       >
-        <LavaLampBackground topOffset={headerHeight} bottomOffset={footerHeight} />
+        {headerHeight > 0 && (
+          <LavaLampBackground topOffset={headerHeight} bottomOffset={footerHeight} />
+        )}
         <div
           ref={layoutRef}
           className={isPortrait ? "portrait-layout" : "landscape-layout"}
