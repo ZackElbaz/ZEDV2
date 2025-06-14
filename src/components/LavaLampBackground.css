@@ -33,6 +33,13 @@
   left: 0;
 }
 
+@media (orientation: portrait) {
+  .blob.top {
+    top: 0; /* or top: 1% if you want a slight offset */
+  }
+}
+
+
 .blob.bottom {
   width: 100%;
   height: 4.5%;
