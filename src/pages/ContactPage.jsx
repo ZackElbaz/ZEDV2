@@ -557,7 +557,9 @@ function ContactPage() {
                   <h3 className="contact-title">Who I am:</h3>
                   <h2>Zack El-baz</h2>
                   <p>
-                    Design Engineer (MEng - Mechanical Engineering)
+                    Design Engineer
+                    <br />
+                    (MEng - Mechanical Engineering)
                     {/* Application Engineer at{" "}
                     <a
                       href="https://www.volklec.com"
