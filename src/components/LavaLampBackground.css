@@ -24,13 +24,17 @@
   background-image: linear-gradient(-206deg, var(--blob-color) 0%, var(--blob-color) 100%);
   position: absolute;
 }
-.blob.static {
-  width: 100%;
+/* .blob.static {
   animation: none !important;
   transform: none !important;
   background-image: linear-gradient(-206deg, var(--blob-color), var(--blob-color));
+} */
+.blob.static.top {
+  width: 100%;
+  height: 4%;
+  top: -3%;
+  left: 0;
 }
-
 /* Top and bottom blobs for smooth edge overflow */
 .blob.top {
   width: 100%;
