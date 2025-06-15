@@ -557,7 +557,8 @@ function ContactPage() {
                   <h3 className="contact-title">Who I am:</h3>
                   <h2>Zack El-baz</h2>
                   <p>
-                    Application Engineer at{" "}
+                    Design Engineer (MEng - Mechanical Engineering)
+                    {/* Application Engineer at{" "}
                     <a
                       href="https://www.volklec.com"
                       target="_blank"
@@ -565,7 +566,7 @@ function ContactPage() {
                       className="company-link"
                     >
                       Volklec
-                    </a>
+                    </a> */}
                   </p>
                   <div className="contact-links">
                     <a
