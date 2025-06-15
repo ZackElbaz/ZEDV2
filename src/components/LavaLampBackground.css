@@ -36,6 +36,13 @@
   top: -3%;
   left: 0;
 }
+.blob.static.bottom {
+  animation: none !important;
+  width: 100%;
+  height: 4%;
+  bottom: -3%;
+  left: 0;
+}
 /* Top and bottom blobs for smooth edge overflow */
 .blob.top {
   width: 100%;
