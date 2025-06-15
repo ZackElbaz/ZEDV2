@@ -126,9 +126,7 @@
   transition: color 0.2s ease;
 }
 
-.contact-links a:hover {
-  color: #ddd;
-}
+
 
 .company-link {
   color: white;
@@ -137,9 +135,11 @@
   transition: color 0.2s ease;
 }
 
+.contact-links a:hover,
 .company-link:hover {
-  color: #ddd;
+  color: var(--hover-highlight);
 }
+
 
 /* Map container */
 .map-container {
