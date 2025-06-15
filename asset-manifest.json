@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/ZEDV2/static/css/main.1e18772f.css",
-    "main.js": "/ZEDV2/static/js/main.c5303a4b.js",
+    "main.css": "/ZEDV2/static/css/main.9dbdd3b6.css",
+    "main.js": "/ZEDV2/static/js/main.0c584eeb.js",
     "static/js/453.ed3810f9.chunk.js": "/ZEDV2/static/js/453.ed3810f9.chunk.js",
     "index.html": "/ZEDV2/index.html",
-    "main.1e18772f.css.map": "/ZEDV2/static/css/main.1e18772f.css.map",
-    "main.c5303a4b.js.map": "/ZEDV2/static/js/main.c5303a4b.js.map",
+    "main.9dbdd3b6.css.map": "/ZEDV2/static/css/main.9dbdd3b6.css.map",
+    "main.0c584eeb.js.map": "/ZEDV2/static/js/main.0c584eeb.js.map",
     "453.ed3810f9.chunk.js.map": "/ZEDV2/static/js/453.ed3810f9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.1e18772f.css",
-    "static/js/main.c5303a4b.js"
+    "static/css/main.9dbdd3b6.css",
+    "static/js/main.0c584eeb.js"
   ]
 }
