@@ -25,6 +25,7 @@
   position: absolute;
 }
 .blob.static {
+  width: 100%;
   animation: none !important;
   transform: none !important;
   background-image: linear-gradient(-206deg, var(--blob-color), var(--blob-color));
