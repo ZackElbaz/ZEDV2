@@ -1,29 +1,32 @@
-import React from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import React, { useRef, useEffect } from "react";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import "./OpenMap.css";
 
 const OpenMap = () => {
-  const center = [52.2916, -1.5359]; // Leamington Spa
+  const mapContainerRef = useRef(null);
 
-  return (
-    <MapContainer
-      center={center}
-      zoom={13}
-      scrollWheelZoom={false}
-      dragging={false}
-      doubleClickZoom={false}
-      zoomControl={false}
-      touchZoom={false}
-      keyboard={false}
-      className="map-container"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-    </MapContainer>
-  );
+  useEffect(() => {
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: "https://api.maptiler.com/maps/toner/style.json?key=t3B5MfN7JyTEddhBUu0M",
+      center: [-1.5359, 52.2916], // [lng, lat] for Leamington Spa
+      zoom: 13,
+      scrollZoom: false,
+      dragPan: false,
+      doubleClickZoom: false,
+      touchZoomRotate: false,
+      keyboard: false,
+    });
+
+    return () => {
+      map.remove();
+    };
+  }, []);
+
+  return <div ref={mapContainerRef} className="map-container" />;
 };
 
 export default OpenMap;
+
+

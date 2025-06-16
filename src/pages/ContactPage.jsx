@@ -559,7 +559,7 @@ function ContactPage() {
                   <p>
                     Design Engineer
                     <br />
-                    (MEng - Mechanical Engineering)
+                    (MEng-Mechanical Engineering)
                     {/* Application Engineer at{" "}
                     <a
                       href="https://www.volklec.com"

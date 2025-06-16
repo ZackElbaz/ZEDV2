@@ -141,7 +141,7 @@
 }
 
 
-/* Map container */
+/* ✅ MapLibre-Compatible Map Container */
 .map-container {
   display: flex;
   align-items: center;
@@ -155,13 +155,32 @@
   background-color: transparent;
   box-shadow: none;
   padding: 0;
+  position: relative;
 }
 
-.map-container .leaflet-container {
-  width: 100% !important;
-  height: 100% !important;
-  border: none !important;
-  background: none !important;
+/* Allow MapLibre's canvas and layers to fill the map area */
+.map-container > * {
+  width: 100%;
+  height: 100%;
+  border: none;
   margin: 0;
   padding: 0;
 }
+
+.map-container canvas {
+  filter: invert(100%) grayscale(100%) brightness(150%);
+}
+
+/* Overlay that targets the light areas */
+/* .map-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--hover-highlight);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 2;
+} */
