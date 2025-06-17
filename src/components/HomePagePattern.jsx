@@ -362,8 +362,10 @@ function HomePagePattern() {
         uv.x *= u_resolution.x / u_resolution.y;
 
         vec2 mouseNorm = u_mouse / u_resolution;
+        mouseNorm.y = 1.0 - mouseNorm.y;
         float dist = length(v_uv - mouseNorm);
-        uv += normalize(uv) * dist * 0.6;
+        float falloff = smoothstep(0.0, 0.5, dist);
+        uv += (uv * 0.3) * falloff;
 
         float scale = 0.35;
         float n = snoise(vec3(uv * scale + u_seed, u_time * 0.05));
