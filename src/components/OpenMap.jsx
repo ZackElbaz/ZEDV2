@@ -12,11 +12,12 @@ const OpenMap = () => {
       style: "https://api.maptiler.com/maps/toner/style.json?key=t3B5MfN7JyTEddhBUu0M",
       center: [-1.5359, 52.2916], // [lng, lat] for Leamington Spa
       zoom: 13,
-      scrollZoom: false,
-      dragPan: false,
-      doubleClickZoom: false,
-      touchZoomRotate: false,
+      scrollZoom: true,
+      dragPan: true,
+      doubleClickZoom: true,
+      touchZoomRotate: true,
       keyboard: false,
+      attributionControl: false, // Disable default attribution
     });
 
     return () => {

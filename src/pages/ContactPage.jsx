@@ -1,4 +1,3 @@
-// ContactPage.jsx
 // import React, { useEffect, useState, useRef } from "react";
 // import HeaderBar from "../components/HeaderBar";
 // import FooterBar from "../components/FooterBar";
@@ -21,6 +20,46 @@
 //   const [isPortrait, setIsPortrait] = useState(
 //     window.matchMedia("(orientation: portrait)").matches
 //   );
+
+//   useEffect(() => {
+//     // Generate random muted neon color
+//     const getRandomVibrantNeonColor = () => {
+//       const hue = Math.floor(Math.random() * 360);       // full rainbow
+//       const saturation = 100;                            // max color intensity
+//       const lightness = 50 + Math.random() * 10;         // 50–60% = vibrant
+
+//       const hslToHex = (h, s, l) => {
+//         s /= 100;
+//         l /= 100;
+//         const k = n => (n + h / 30) % 12;
+//         const a = s * Math.min(l, 1 - l);
+//         const f = n =>
+//           Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))));
+//         return `#${[f(0), f(8), f(4)].map(x => x.toString(16).padStart(2, "0")).join("")}`;
+//       };
+
+//       return hslToHex(hue, saturation, lightness);
+//     };
+
+
+
+//     // Invert hex color
+//     const invertHexColor = (hex) => {
+//       const cleanHex = hex.replace("#", "").padStart(6, "0");
+//       const r = 255 - parseInt(cleanHex.slice(0, 2), 16);
+//       const g = 255 - parseInt(cleanHex.slice(2, 4), 16);
+//       const b = 255 - parseInt(cleanHex.slice(4, 6), 16);
+//       const toHex = (n) => n.toString(16).padStart(2, "0");
+//       return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+//     };
+
+//     const blobColor = getRandomVibrantNeonColor();
+//     const inverseColor = invertHexColor(blobColor);
+
+//     const root = document.documentElement;
+//     root.style.setProperty("--blob-color", blobColor);
+//     root.style.setProperty("--hover-highlight", inverseColor);
+//   }, []);
 
 //   const updateLayout = () => {
 //     if (headerRef.current) setHeaderHeight(headerRef.current.offsetHeight);
@@ -45,9 +84,7 @@
 
 //     const forceScrollEvent = () => {
 //       const container = layoutRef.current;
-//       if (container) {
-//         container.dispatchEvent(new Event("scroll"));
-//       }
+//       if (container) container.dispatchEvent(new Event("scroll"));
 //     };
 
 //     const scrollTriggerTimeout = setTimeout(forceScrollEvent, 100);
@@ -65,28 +102,6 @@
 //     { id: 2, label: "Map", className: "section-2" },
 //     { id: 3, label: "Message", className: "section-3" },
 //   ];
-
-//   useEffect(() => {
-//     const invertHexColor = (hex) => {
-//       const cleanHex = hex.replace("#", "").padStart(6, "0");
-
-//       const r = 255 - parseInt(cleanHex.slice(0, 2), 16);
-//       const g = 255 - parseInt(cleanHex.slice(2, 4), 16);
-//       const b = 255 - parseInt(cleanHex.slice(4, 6), 16);
-
-//       const toHex = (n) => n.toString(16).padStart(2, "0");
-//       return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-//     };
-
-//     const rootStyle = getComputedStyle(document.documentElement);
-//     const blobColor = rootStyle.getPropertyValue("--blob-color").trim();
-
-//     if (/^#[0-9A-Fa-f]{6}$/.test(blobColor)) {
-//       const inverted = invertHexColor(blobColor);
-//       document.documentElement.style.setProperty("--hover-highlight", inverted);
-//     }
-//   }, []);
-
 
 //   useEffect(() => {
 //     if (!isPortrait || sectionHeight === 0) return;
@@ -126,18 +141,14 @@
 //     };
 
 //     const handleTouchMove = (e) => {
-//       // Prevent native scroll while swiping
 //       e.preventDefault();
 //     };
 
 //     const handleTouchEnd = (e) => {
 //       if (isSnapping) return;
-
 //       const touchEndY = e.changedTouches[0].clientY;
 //       const deltaY = touchStartY - touchEndY;
-
 //       if (Math.abs(deltaY) < 30) return;
-
 //       if (deltaY > 0 && currentIndex < sections.length - 1) {
 //         scrollToSection(currentIndex + 1);
 //       } else if (deltaY < 0 && currentIndex > 0) {
@@ -214,7 +225,10 @@
 //                   <h3 className="contact-title">Who I am:</h3>
 //                   <h2>Zack El-baz</h2>
 //                   <p>
-//                     Application Engineer at{" "}
+//                     Design Engineer
+//                     <br />
+//                     (MEng-Mechanical Engineering)
+//                     {/* Application Engineer at{" "}
 //                     <a
 //                       href="https://www.volklec.com"
 //                       target="_blank"
@@ -222,7 +236,7 @@
 //                       className="company-link"
 //                     >
 //                       Volklec
-//                     </a>
+//                     </a> */}
 //                   </p>
 //                   <div className="contact-links">
 //                     <a
@@ -325,6 +339,10 @@
 // }
 
 // export default ContactPage;
+
+
+
+
 
 
 
@@ -444,6 +462,7 @@ function ContactPage() {
     let currentIndex = 0;
     let touchStartY = 0;
     let isSnapping = false;
+    let isTouchingMap = false;
 
     const scrollToSection = (index) => {
       isSnapping = true;
@@ -468,25 +487,35 @@ function ContactPage() {
     };
 
     const handleTouchStart = (e) => {
+      const target = e.target;
+      isTouchingMap = !!target.closest(".map-container"); // Check if touching inside the map
+      if (isTouchingMap) return;
+
       touchStartY = e.touches[0].clientY;
       currentIndex = Math.round(container.scrollTop / sectionHeight);
     };
 
+
     const handleTouchMove = (e) => {
+      if (isTouchingMap) return; // Allow native touch handling in map
       e.preventDefault();
     };
 
+
     const handleTouchEnd = (e) => {
-      if (isSnapping) return;
+      if (isTouchingMap || isSnapping) return;
+
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
       if (Math.abs(deltaY) < 30) return;
+
       if (deltaY > 0 && currentIndex < sections.length - 1) {
         scrollToSection(currentIndex + 1);
       } else if (deltaY < 0 && currentIndex > 0) {
         scrollToSection(currentIndex - 1);
       }
     };
+
 
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
     container.addEventListener("touchmove", handleTouchMove, { passive: false });
@@ -559,7 +588,7 @@ function ContactPage() {
                   <p>
                     Design Engineer
                     <br />
-                    (MEng-Mechanical Engineering)
+                    [MEng-Mechanical Engineering]
                     {/* Application Engineer at{" "}
                     <a
                       href="https://www.volklec.com"

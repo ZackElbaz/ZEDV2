@@ -2,6 +2,7 @@
 :root {
   --blob-color: #ff8000; /* hot pink #ff0059*/
   --hover-highlight: #00ffa6; /* fallback inverse */
+  --contact-body-text-size: 1.5rem; /* 👈 Change this to your preferred size */
 }
 
 .page-container {
@@ -106,7 +107,7 @@
 }
 
 .contact-info p {
-  font-size: 1.2rem;
+  font-size: var(--contact-body-text-size);
   color: #f0f0f0;
   margin: 0;
 }
@@ -122,7 +123,7 @@
 .contact-links a {
   color: white;
   text-decoration: underline;
-  font-size: 1.1rem;
+  font-size: var(--contact-body-text-size);
   transition: color 0.2s ease;
 }
 
