@@ -85,7 +85,7 @@ function SearchBar({ placeholder = "SEARCH..." }) {
             setHighlightedIndex(0);
           }}
           onKeyDown={handleKeyDown}
-          className="search-bar"
+          className={`search-bar${isFocused ? " open" : ""}`} // ← add conditional class
           style={{
             color: "transparent",        // Hide real text
             caretColor: textColor,       // Show real caret
