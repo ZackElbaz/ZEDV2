@@ -1,15 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./HomePageProject.css";
+import { initialProjects as unsortedProjects } from "./ProjectData";
 
-const initialProjects = [
-  { name: "REACTION DIFFUSION", image: process.env.PUBLIC_URL + "/ReactionDiffusion.png" },
-  { name: "GLYPHS", image: process.env.PUBLIC_URL + "/Blocks.jpg" },
-  { name: "GLYPHS", image: process.env.PUBLIC_URL + "/Blocks.jpg" },
-  { name: "GLYPHS", image: process.env.PUBLIC_URL + "/Blocks.jpg" },
-  { name: "SINGLE LINE", image: process.env.PUBLIC_URL + "/SingleLine.jpg" },
-  { name: "HALFTONES", image: process.env.PUBLIC_URL + "/Halftones.jpg" },
-];
+const initialProjects = [...unsortedProjects].sort((a, b) => new Date(b.date) - new Date(a.date));
 
 const VISIBLE_COUNT = 4;
 

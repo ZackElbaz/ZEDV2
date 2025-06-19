@@ -1,30 +1,113 @@
-.search-bar {
+.search-container {
+  position: relative;
   width: 100%;
-  padding: 0.5rem;
+}
+
+.search-autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-input-overlay {
+  position: absolute;
+  top: 0.5rem;               /* match input's vertical padding */
+  left: 1rem;                /* match input's horizontal padding */
+  width: calc(100% - 2rem);  /* account for left+right padding */
+  height: calc(100% - 1rem); /* account for top+bottom padding */
   font-size: 1rem;
   font-weight: bold;
-  font-family: var(--font-main); /* ✅ Add this */
+  font-family: var(--font-main);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-start;  /* ✅ LEFT aligned text */
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  overflow: hidden;
+  text-align: left;
+}
+
+.search-input-overlay.focused {
+  opacity: 1;
+}
+
+.search-combined {
+  display: inline-block;
+  line-height: 1;
+  transform: translateY(-1px); /* fine vertical alignment */
+}
+
+.search-typed {
+  color: black;
+}
+
+.search-ghost {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.search-bar {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: var(--font-main);
   border-radius: 9999px;
   border: none;
   outline: none;
-  text-align: center;
+  text-align: left;           /* ✅ LEFT aligned input */
   text-transform: uppercase;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   background-color: white;
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  color: transparent;         /* hide actual text */
+  caret-color: black;         /* visible caret */
 }
-  
-  .search-bar::placeholder {
+
+.search-bar::placeholder {
   color: #000000;
   font-weight: bold;
-  font-family: var(--font-main); /* ✅ Match input font */
+  font-family: var(--font-main);
   text-align: center;
   text-transform: uppercase;
   transition: opacity 0.3s ease;
 }
 
-  
-  /* optional if you want smoother hover globally without React state */
-  .search-bar:hover {
-    background-color: #ff0059;
-  }
-  
+.search-bar:hover {
+  background-color: #ff0059;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-item {
+  padding: 0.5rem 1rem;
+  font-family: var(--font-main);
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-item:hover,
+.search-item.highlighted {
+  background-color: #ff0059;
+  color: white;
+}
