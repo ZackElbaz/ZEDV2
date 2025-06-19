@@ -1,7 +1,8 @@
 .search-container {
   position: relative;
-  width: 100%;
-  box-sizing: border-box;
+  width: 60vw;
+  max-width: 70%;       /* prevent overflow */
+  margin: 0 auto;   
 }
 
 .search-autocomplete-wrapper {
@@ -100,6 +101,7 @@
   z-index: 10;
   max-height: 200px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on mobile */
 }
 
 .search-item {

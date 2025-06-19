@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { initialProjects } from "./ProjectData";
 import "./SearchBar.css";
@@ -14,6 +14,7 @@ function invertColor(hex) {
 function SearchBar({ placeholder = "SEARCH..." }) {
   const navigate = useNavigate();
   const inputRef = useRef(null);
+  const containerRef = useRef(null); // 🆕 to detect outside clicks
 
   const textColor = "black";
   const focusBackgroundColor = "#ff0059";
@@ -24,7 +25,9 @@ function SearchBar({ placeholder = "SEARCH..." }) {
   const [isFocused, setIsFocused] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
-  const sortedProjects = [...initialProjects].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedProjects = [...initialProjects].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
   const filtered = sortedProjects.filter((project) =>
     project.name.toLowerCase().startsWith(query.toLowerCase())
   );
@@ -33,7 +36,9 @@ function SearchBar({ placeholder = "SEARCH..." }) {
   const highlightedProject = visibleProjects[highlightedIndex];
 
   const handleSelect = (project) => {
-    const path = project.route || `/projects/${project.name.toLowerCase().replace(/\s+/g, "-")}`;
+    const path =
+      project.route ||
+      `/projects/${project.name.toLowerCase().replace(/\s+/g, "-")}`;
     navigate(path);
     setQuery("");
     setIsFocused(false);
@@ -59,15 +64,40 @@ function SearchBar({ placeholder = "SEARCH..." }) {
     }
   };
 
+  // 🆕 Reset search bar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
+        setIsFocused(false);
+        setIsHovered(false);
+        setQuery("");
+        setHighlightedIndex(0);
+      }
+    };
+
+    if (isFocused) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isFocused]);
+
   return (
-    <div className="search-container">
+    <div className="search-container" ref={containerRef}>
       <div className="search-autocomplete-wrapper">
         <div className={`search-input-overlay${isFocused ? " focused" : ""}`}>
           <span className="search-combined">
             <span className="search-typed">{query}</span>
             {query.length > 0 && (
               <span className="search-ghost">
-                {highlightedProject?.name.toLowerCase().startsWith(query.toLowerCase())
+                {highlightedProject?.name
+                  .toLowerCase()
+                  .startsWith(query.toLowerCase())
                   ? highlightedProject.name.slice(query.length)
                   : ""}
               </span>
@@ -85,11 +115,11 @@ function SearchBar({ placeholder = "SEARCH..." }) {
             setHighlightedIndex(0);
           }}
           onKeyDown={handleKeyDown}
-          className={`search-bar${isFocused ? " open" : ""}`} // ← add conditional class
+          className={`search-bar${isFocused ? " open" : ""}`}
           style={{
-            color: "transparent",        // Hide real text
-            caretColor: textColor,       // Show real caret
-            textAlign: "left",           // LEFT aligned typing
+            color: "transparent",
+            caretColor: textColor,
+            textAlign: "left",
             backgroundColor: isHovered ? focusBackgroundColor : "white",
             transition: "background-color 0.3s ease, box-shadow 0.3s ease",
           }}
@@ -103,12 +133,6 @@ function SearchBar({ placeholder = "SEARCH..." }) {
             }, 150);
             e.target.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.3)";
           }}
-          onBlur={(e) => {
-            setTimeout(() => setIsFocused(false), 200);
-            setIsHovered(false);
-            e.target.style.backgroundColor = "white";
-            e.target.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.2)";
-          }}
         />
       </div>
 
@@ -117,14 +141,18 @@ function SearchBar({ placeholder = "SEARCH..." }) {
           {visibleProjects.map((project, idx) => (
             <li
               key={idx}
-              className={`search-item${idx === highlightedIndex ? " highlighted" : ""}`}
+              className={`search-item${
+                idx === highlightedIndex ? " highlighted" : ""
+              }`}
               onMouseEnter={() => setHighlightedIndex(idx)}
               onMouseDown={() => handleSelect(project)}
             >
               {project.name}
             </li>
           ))}
-          {visibleProjects.length === 0 && <li className="search-item">No results</li>}
+          {visibleProjects.length === 0 && (
+            <li className="search-item">No results</li>
+          )}
         </ul>
       )}
     </div>
@@ -132,4 +160,3 @@ function SearchBar({ placeholder = "SEARCH..." }) {
 }
 
 export default SearchBar;
-
