@@ -195,5 +195,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "HomePage Pattern Touch Interaction" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "HomePage Project Carousel" && git push origin main && npm run build && npm run deploy
 
