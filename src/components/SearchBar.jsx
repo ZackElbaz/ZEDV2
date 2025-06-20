@@ -444,6 +444,18 @@ function SearchBar({ placeholder = "SEARCH..." }) {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(window.matchMedia("(orientation: portrait)").matches);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(orientation: portrait)");
+    const handleOrientationChange = (e) => {
+      setIsPortrait(e.matches);
+    };
+    mediaQuery.addEventListener("change", handleOrientationChange);
+    return () => mediaQuery.removeEventListener("change", handleOrientationChange);
+  }, []);
+
+  const dynamicPlaceholder = isPortrait ? "Seacrh" : placeholder;
 
   const sortedProjects = [...initialProjects].sort((a, b) =>
     a.name.localeCompare(b.name)
@@ -483,13 +495,11 @@ function SearchBar({ placeholder = "SEARCH..." }) {
     }
   };
 
-  // Broadcast scroll lock to other components (like HomePage)
   useEffect(() => {
     const event = new CustomEvent("searchbar-scroll-lock", { detail: isFocused });
     window.dispatchEvent(event);
   }, [isFocused]);
 
-  // Smooth scroll state for wheel input
   let scrollTarget = null;
   let animating = false;
 
@@ -600,7 +610,7 @@ function SearchBar({ placeholder = "SEARCH..." }) {
         <input
           ref={inputRef}
           type="text"
-          placeholder={placeholder}
+          placeholder={dynamicPlaceholder}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
