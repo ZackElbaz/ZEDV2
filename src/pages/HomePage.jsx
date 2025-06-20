@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Search Bar Functional With Scroll Locking" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "Search Bar With Correct Placehoder Text" && git push origin main && npm run build && npm run deploy
 

@@ -3,7 +3,9 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import HomePage from "./pages/HomePage";
 import ContactPage from "./pages/ContactPage";
+import WIP from "./projects/WorkInProgress";
 import ProjectGlyphs from "./projects/ProjectGlyphs";
+import MAINTENENCE from "./projects/UnderMaintenance";
 
 function App() {
   useEffect(() => {
@@ -23,6 +25,8 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/glyphs" element={<ProjectGlyphs />} />
+        <Route path="/WorkInProgress" element={<WIP />} />
+        <Route path="/UnderMaintenance" element={<MAINTENENCE />} />
       </Routes>
     </Router>
   );
