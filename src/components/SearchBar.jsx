@@ -455,7 +455,7 @@ function SearchBar({ placeholder = "SEARCH..." }) {
     return () => mediaQuery.removeEventListener("change", handleOrientationChange);
   }, []);
 
-  const dynamicPlaceholder = isPortrait ? "Seacrh" : placeholder;
+  const dynamicPlaceholder = isPortrait ? "SEARCH" : placeholder;
 
   const sortedProjects = [...initialProjects].sort((a, b) =>
     a.name.localeCompare(b.name)
