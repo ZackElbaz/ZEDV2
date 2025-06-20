@@ -12,18 +12,6 @@ export const initialProjects = [
     route: "/glyphs"
   },
   {
-    name: "GLYPHS1",
-    image: process.env.PUBLIC_URL + "/Blocks.jpg",
-    date: "05/20/2024",
-    route: "/projects/glyphs1"
-  },
-  {
-    name: "GLYPHS2",
-    image: process.env.PUBLIC_URL + "/Blocks.jpg",
-    date: "05/15/2024",
-    route: "/projects/glyphs2"
-  },
-  {
     name: "SINGLE LINE",
     image: process.env.PUBLIC_URL + "/SingleLine.jpg",
     date: "04/30/2024",
