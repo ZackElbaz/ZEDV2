@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Maintenance and Work In Progress pages uploaded" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "Maintenance pages background" && git push origin main && npm run build && npm run deploy
 
