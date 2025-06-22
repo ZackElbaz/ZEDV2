@@ -388,6 +388,7 @@ const ditherFragmentShader = `
 precision highp float;
 uniform float colorNum;
 uniform float pixelSize;
+uniform vec3 primaryColor;
 const float bayerMatrix8x8[64] = float[64](
   0.0/64.0, 48.0/64.0, 12.0/64.0, 60.0/64.0,  3.0/64.0, 51.0/64.0, 15.0/64.0, 63.0/64.0,
   32.0/64.0,16.0/64.0, 44.0/64.0, 28.0/64.0, 35.0/64.0,19.0/64.0, 47.0/64.0, 31.0/64.0,
@@ -399,25 +400,33 @@ const float bayerMatrix8x8[64] = float[64](
   42.0/64.0,26.0/64.0, 38.0/64.0, 22.0/64.0, 41.0/64.0,25.0/64.0, 37.0/64.0, 21.0/64.0
 );
 
+// vec3 dither(vec2 uv, vec3 color) {
+//   vec2 scaledCoord = floor(uv * resolution / pixelSize);
+//   int x = int(mod(scaledCoord.x, 8.0));
+//   int y = int(mod(scaledCoord.y, 8.0));
+//   float threshold = bayerMatrix8x8[y * 8 + x] - 0.25;
+//   float step = 1.0 / (colorNum - 1.0);
+//   color += threshold * step;
+//   float bias = 0.2;
+//   color = clamp(color - bias, 0.0, 1.0);
+//   return floor(color * (colorNum - 1.0) + 0.5) / (colorNum - 1.0);
+// }
 vec3 dither(vec2 uv, vec3 color) {
-  vec2 scaledCoord = floor(uv * resolution / pixelSize);
-  int x = int(mod(scaledCoord.x, 8.0));
-  int y = int(mod(scaledCoord.y, 8.0));
-  float threshold = bayerMatrix8x8[y * 8 + x] - 0.25;
   float step = 1.0 / (colorNum - 1.0);
-  color += threshold * step;
-  float bias = 0.2;
-  color = clamp(color - bias, 0.0, 1.0);
   return floor(color * (colorNum - 1.0) + 0.5) / (colorNum - 1.0);
 }
-
 void mainImage(in vec4 inputColor, in vec2 uv, out vec4 outputColor) {
   vec2 normalizedPixelSize = pixelSize / resolution;
   vec2 uvPixel = normalizedPixelSize * floor(uv / normalizedPixelSize);
+
   vec4 color = texture2D(inputBuffer, uvPixel);
-  color.rgb = dither(uv, color.rgb);
-  outputColor = color;
+
+  float brightness = max(color.r, max(color.g, color.b)); // Pure max channel
+  vec3 finalColor = brightness > 0.7 ? primaryColor : vec3(0.0);
+
+  outputColor = vec4(finalColor, 1.0);
 }
+
 `;
 
 class RetroEffectImpl extends Effect {
@@ -425,6 +434,7 @@ class RetroEffectImpl extends Effect {
     const uniforms = new Map([
       ["colorNum", new THREE.Uniform(4.0)],
       ["pixelSize", new THREE.Uniform(2.0)],
+      ["primaryColor", new THREE.Uniform(new THREE.Color(1.0, 0.0, 0.0))], // NEW
     ]);
     super("RetroEffect", ditherFragmentShader, { uniforms });
     this.uniforms = uniforms;
@@ -433,13 +443,15 @@ class RetroEffectImpl extends Effect {
   get colorNum() { return this.uniforms.get("colorNum").value; }
   set pixelSize(v) { this.uniforms.get("pixelSize").value = v; }
   get pixelSize() { return this.uniforms.get("pixelSize").value; }
+  set primaryColor(v) { this.uniforms.get("primaryColor").value = new THREE.Color(...v); }
+  get primaryColor() { return this.uniforms.get("primaryColor").value; }
 }
 
 const WrappedRetro = wrapEffect(RetroEffectImpl);
 
 const RetroEffect = forwardRef((props, ref) => {
-  const { colorNum, pixelSize } = props;
-  return <WrappedRetro ref={ref} colorNum={colorNum} pixelSize={pixelSize} />;
+  const { colorNum, pixelSize, primaryColor } = props;
+  return <WrappedRetro ref={ref} colorNum={colorNum} pixelSize={pixelSize} primaryColor={primaryColor} />;
 });
 RetroEffect.displayName = "RetroEffect";
 
@@ -518,7 +530,7 @@ function DitheredWaves({
       </mesh>
 
       <EffectComposer>
-        <RetroEffect colorNum={colorNum} pixelSize={pixelSize} />
+        <RetroEffect colorNum={colorNum} pixelSize={pixelSize} primaryColor={waveColor} />
       </EffectComposer>
 
       <mesh
@@ -540,7 +552,7 @@ export default function Dither({
   waveAmplitude = 0.3,
   waveColor = [0.5, 0.5, 0.5],
   colorNum = 4,
-  pixelSize = 2,
+  pixelSize = 8,
   disableAnimation = false,
   enableMouseInteraction = true,
   mouseRadius = 1,

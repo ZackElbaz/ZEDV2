@@ -7,14 +7,15 @@ import "./UnderMaintenance.css";
 function UnderMaintenance() {
   // Generate a pastel/neon color
   const randomWaveColor = useMemo(() => {
-    // Pastel: base RGB in [0.7, 1.0] with slight variance
-    const base = 0.7 + Math.random() * 0.3;
-    const hue = Math.random() * 2 * Math.PI;
-    return [
-      base * (0.6 + 0.4 * Math.cos(hue)),   // red component
-      base * (0.6 + 0.4 * Math.cos(hue + 2)), // green
-      base * (0.6 + 0.4 * Math.cos(hue + 4)), // blue
-    ];
+    // High saturation neon using HSV -> RGB conversion
+    const hue = Math.random(); // Hue: 0 to 1
+    const sat = 1.0;           // Full saturation
+    const val = 1.0;           // Full brightness
+
+    const k = (n) => (n + hue * 6) % 6;
+    const f = (n) => val - val * sat * Math.max(Math.min(Math.min(k(n), 4 - k(n)), 1), 0);
+
+    return [f(5), f(3), f(1)]; // Convert HSV to RGB
   }, []);
 
   return (
