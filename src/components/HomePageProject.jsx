@@ -236,7 +236,6 @@ import "./HomePageProject.css";
 import { initialProjects as unsortedProjects } from "./ProjectData";
 
 const initialProjects = [...unsortedProjects].sort((a, b) => new Date(b.date) - new Date(a.date));
-
 const VISIBLE_COUNT = 4;
 
 function HomePageProject() {
@@ -253,6 +252,7 @@ function HomePageProject() {
   const touchStartX = useRef(0);
   const startDragX = useRef(0);
   const isMouseDown = useRef(false);
+  const searchBarScrollLocked = useRef(false);
 
   const fullPortraitProjects = [initialProjects[initialProjects.length - 1], ...initialProjects, initialProjects[0]];
   const fullLandscapeProjects = [...initialProjects, ...initialProjects, ...initialProjects];
@@ -263,7 +263,16 @@ function HomePageProject() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const handleLock = (e) => {
+      searchBarScrollLocked.current = e.detail;
+    };
+    window.addEventListener("searchbar-scroll-lock", handleLock);
+    return () => window.removeEventListener("searchbar-scroll-lock", handleLock);
+  }, []);
+
   const handleMouseDownPortrait = (e) => {
+    if (searchBarScrollLocked.current) return;
     isMouseDown.current = true;
     touchStartX.current = e.clientX;
     startDragX.current = dragX;
@@ -273,14 +282,14 @@ function HomePageProject() {
   };
 
   const handleMouseMovePortrait = (e) => {
-    if (!isMouseDown.current || !isDragging) return;
+    if (searchBarScrollLocked.current || !isMouseDown.current || !isDragging) return;
     const delta = e.clientX - touchStartX.current;
     if (Math.abs(delta) > 5) setClickPrevented(true);
     setDragX(startDragX.current + delta);
   };
 
   const handleMouseUpPortrait = (e) => {
-    if (!isMouseDown.current) return;
+    if (searchBarScrollLocked.current || !isMouseDown.current) return;
     isMouseDown.current = false;
     setIsDragging(false);
     setTransitionEnabled(true);
@@ -292,6 +301,7 @@ function HomePageProject() {
   };
 
   const handleMouseDownLandscape = (e) => {
+    if (searchBarScrollLocked.current) return;
     isMouseDown.current = true;
     touchStartX.current = e.clientX;
     startDragX.current = landscapeDragX;
@@ -300,14 +310,14 @@ function HomePageProject() {
   };
 
   const handleMouseMoveLandscape = (e) => {
-    if (!isMouseDown.current) return;
+    if (searchBarScrollLocked.current || !isMouseDown.current) return;
     const delta = e.clientX - touchStartX.current;
     if (Math.abs(delta) > 5) setClickPrevented(true);
     setLandscapeDragX(startDragX.current + delta);
   };
 
   const handleMouseUpLandscape = (e) => {
-    if (!isMouseDown.current) return;
+    if (searchBarScrollLocked.current || !isMouseDown.current) return;
     isMouseDown.current = false;
     const slideWidth = window.innerWidth / VISIBLE_COUNT;
     const movedSlides = Math.round(-landscapeDragX / slideWidth);
@@ -315,16 +325,6 @@ function HomePageProject() {
     setLandscapeTransition(true);
     setLandscapeIndex(newIndex);
     setLandscapeDragX(0);
-  };
-
-  const handleEndPortrait = (clientX) => {
-    setIsDragging(false);
-    setTransitionEnabled(true);
-    const deltaX = clientX - touchStartX.current;
-    const swipeThreshold = window.innerWidth * 0.1;
-    if (deltaX > swipeThreshold) setCurrentProjectIndex((prev) => prev - 1);
-    else if (deltaX < -swipeThreshold) setCurrentProjectIndex((prev) => prev + 1);
-    setDragX(0);
   };
 
   useEffect(() => {
