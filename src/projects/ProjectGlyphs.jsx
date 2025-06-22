@@ -533,6 +533,335 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+// import React, { useEffect, useRef, useState } from "react";
+// import HeaderBar from "../components/HeaderBar";
+// import FooterBar from "../components/FooterBar";
+// import { setupWebGLRenderer } from "./ProjectGlyphsShader";
+
+// function ProjectGlyphs() {
+//   const MAX_SIZE = 1600;
+//   const [headerHeight] = useState(80);
+//   const [footerHeight] = useState(60);
+//   const [mediaType, setMediaType] = useState(null);
+//   const [mediaSource, setMediaSource] = useState(null);
+//   const [contrast, setContrast] = useState(1.0);
+//   const [sharpness, setSharpness] = useState(0.0);
+//   const [saturation, setSaturation] = useState(1.0);
+//   const [needsUpdate, setNeedsUpdate] = useState(true);
+//   const [pixelation, setPixelation] = useState(50);
+//   const [videoDevices, setVideoDevices] = useState([]);
+//   const [selectedDeviceId, setSelectedDeviceId] = useState("");
+//   const [isFrontFacing, setIsFrontFacing] = useState(false);
+
+//   const headerRef = useRef(null);
+//   const footerRef = useRef(null);
+//   const canvasRef = useRef(null);
+//   const imageRef = useRef(null);
+//   const videoRef = useRef(null);
+//   const webcamRef = useRef(null);
+
+//   useEffect(() => {
+//     const resizeCanvas = () => {
+//       const canvas = canvasRef.current;
+//       if (!canvas) return;
+//       const dpr = window.devicePixelRatio || 1;
+//       const width = canvas.clientWidth * dpr;
+//       const height = canvas.clientHeight * dpr;
+//       if (canvas.width !== width || canvas.height !== height) {
+//         canvas.width = width;
+//         canvas.height = height;
+//         setNeedsUpdate(true);
+//       }
+//     };
+//     resizeCanvas();
+//     window.addEventListener("resize", resizeCanvas);
+//     return () => window.removeEventListener("resize", resizeCanvas);
+//   }, []);
+
+//   useEffect(() => {
+//     async function getVideoDevices() {
+//       try {
+//         const devices = await navigator.mediaDevices.enumerateDevices();
+//         const videoInputs = devices.filter((d) => d.kind === "videoinput");
+//         setVideoDevices(videoInputs);
+//       } catch (e) {
+//         console.error("Error enumerating devices", e);
+//       }
+//     }
+//     getVideoDevices();
+//   }, []);
+
+//   useEffect(() => {
+//     async function startCamera() {
+//       if (!selectedDeviceId) {
+//         if (webcamRef.current?.srcObject) {
+//           webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
+//           webcamRef.current.srcObject = null;
+//         }
+//         setMediaType(null);
+//         setMediaSource(null);
+//         setIsFrontFacing(false);
+//         return;
+//       }
+
+//       try {
+//         if (webcamRef.current?.srcObject) {
+//           webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
+//           webcamRef.current.srcObject = null;
+//         }
+
+//         const stream = await navigator.mediaDevices.getUserMedia({
+//           video: { deviceId: { exact: selectedDeviceId } },
+//         });
+
+//         if (webcamRef.current) {
+//           webcamRef.current.srcObject = stream;
+//           try {
+//             await webcamRef.current.play();
+//           } catch {}
+//           setMediaType("webcam");
+//           setMediaSource("webcam");
+//         }
+
+//         const device = videoDevices.find((d) => d.deviceId === selectedDeviceId);
+//         if (device) {
+//           const label = device.label.toLowerCase();
+//           const frontKeywords = ["front", "user", "selfie"];
+//           setIsFrontFacing(frontKeywords.some((kw) => label.includes(kw)));
+//         } else {
+//           setIsFrontFacing(false);
+//         }
+//       } catch (error) {
+//         console.error("Error accessing camera", error);
+//         alert("Cannot access camera: " + error.message);
+//         setSelectedDeviceId("");
+//       }
+//     }
+//     startCamera();
+//     return () => {
+//       if (webcamRef.current?.srcObject) {
+//         webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
+//       }
+//     };
+//   }, [selectedDeviceId, videoDevices]);
+
+//   const onFileChange = (e) => {
+//     const file = e.target.files[0];
+//     if (!file) return;
+
+//     if (webcamRef.current?.srcObject) {
+//       webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
+//       webcamRef.current.srcObject = null;
+//     }
+
+//     setSelectedDeviceId("");
+//     setIsFrontFacing(false);
+
+//     const isVideo = file.type.startsWith("video");
+
+//     // 🔁 Image logic
+//     if (!isVideo) {
+//       const reader = new FileReader();
+//       reader.onload = () => {
+//         const img = new Image();
+//         img.onload = () => {
+//           const canvas = document.createElement("canvas");
+//           const ctx = canvas.getContext("2d");
+
+//           const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
+//           const newWidth = img.width * scale;
+//           const newHeight = img.height * scale;
+
+//           canvas.width = newWidth;
+//           canvas.height = newHeight;
+//           ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+//           // 💾 Export to compressed JPEG (quality adjustable)
+//           const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.8); // 0.8 = 80% quality
+
+//           setMediaSource(null);
+//           setMediaType(null);
+//           setTimeout(() => {
+//             setMediaType("image");
+//             setMediaSource(jpegDataUrl);
+//             setNeedsUpdate(true);
+//           }, 50);
+//         };
+//         img.src = reader.result;
+//       };
+//       reader.readAsDataURL(file);
+//     } else {
+//       const url = URL.createObjectURL(file);
+//       setMediaSource(null);
+//       setMediaType(null);
+//       setTimeout(() => {
+//         setMediaType("video");
+//         setMediaSource(url);
+//         setNeedsUpdate(true);
+//       }, 50);
+//     }
+
+//     e.target.value = null;
+//   };
+
+
+
+//   useEffect(() => {
+//     if (mediaType === "video" && videoRef.current) {
+//       videoRef.current.src = mediaSource;
+//       videoRef.current.loop = true;
+//       videoRef.current.play().catch(() => {});
+//     } else if (mediaType === "image" && imageRef.current) {
+//       imageRef.current.onload = () => setNeedsUpdate(true);
+//       imageRef.current.src = mediaSource;
+//     }
+//   }, [mediaSource, mediaType]);
+
+//   useEffect(() => {
+//     if (!canvasRef.current || !mediaType || !mediaSource) return;
+
+//     const stopRendering = setupWebGLRenderer({
+//       canvas: canvasRef.current,
+//       imageRef,
+//       videoRef,
+//       webcamRef,
+//       mediaType,
+//       contrast,
+//       sharpness,
+//       saturation,
+//       needsUpdate,
+//       pixelation,
+//       isFrontFacing,
+//       setNeedsUpdate,
+//     });
+
+//     return () => stopRendering?.();
+//   }, [
+//     mediaSource,
+//     mediaType,
+//     contrast,
+//     sharpness,
+//     saturation,
+//     needsUpdate,
+//     pixelation,
+//     isFrontFacing,
+//   ]);
+
+
+
+//   useEffect(() => {
+//     const img = new Image();
+//     img.onload = () => {
+//       const canvas = document.createElement("canvas");
+//       const ctx = canvas.getContext("2d");
+
+//       const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
+//       const newWidth = img.width * scale;
+//       const newHeight = img.height * scale;
+
+//       canvas.width = newWidth;
+//       canvas.height = newHeight;
+//       ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+//       const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.8); // Compress as JPEG
+
+//       if (imageRef.current) {
+//         imageRef.current.onload = () => {
+//           setMediaType("image");
+//           setMediaSource(jpegDataUrl);
+//           setNeedsUpdate(true);
+//         };
+//         imageRef.current.src = jpegDataUrl;
+//       }
+//     };
+
+//   // Load the original PNG source
+//   img.src = `${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`;
+// }, []);
+
+
+
+//   return (
+//     <div style={{ minHeight: "100vh", overflowY: "auto", position: "relative" }}>
+//       <HeaderBar ref={headerRef} />
+//       <div style={{ paddingTop: `${headerHeight}px`, minHeight: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`, paddingBottom: `${footerHeight}px`, backgroundColor: "#f5f5f5" }}>
+//         <div style={{ maxWidth: "900px", margin: "0 auto", padding: "40px 20px", fontFamily: "sans-serif", color: "#222" }}>
+//           <h2>
+//             This project is inspired by{" "}
+//             <a
+//               href="https://www.instagram.com/p/DAb7eYAx8q3/"
+//               target="_blank"
+//               rel="noopener noreferrer"
+//             >
+//               @the.well.tarot
+//             </a>
+//           </h2>
+//           <p style={{ lineHeight: "1.6" }}>
+//             This project explores photomosaics — images built from smaller component images (or “glyphs”). Each glyph is chosen to match the color or intensity of a region of the source image. See below an example of this using artwork provided by{" "}
+//             <a
+//               href="https://www.instagram.com/noracored/"
+//               target="_blank"
+//               rel="noopener noreferrer"
+//             >
+//               @Noracored
+//             </a>.
+//           </p>
+
+
+//           <div style={{ marginTop: "2rem" }}>
+//             <strong>Select media source:</strong>
+//             <div style={{ display: "flex", gap: "1rem", margin: "1rem 0", flexWrap: "wrap", alignItems: "center" }}>
+//               <label htmlFor="fileInput" style={{ cursor: "pointer", userSelect: "none", display: "inline-block", padding: "0.5em 1em", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#f0f0f0" }}>
+//                 🗂️ File from Computer (Image or Video)
+//               </label>
+//               <input id="fileInput" type="file" accept="image/*,video/*" style={{ display: "none" }} onChange={onFileChange} />
+//               {videoDevices.length > 0 && (
+//                 <select value={selectedDeviceId} onChange={(e) => {
+//                   setSelectedDeviceId(e.target.value);
+//                   setMediaType(null);
+//                   setMediaSource(null);
+//                   setNeedsUpdate(true);
+//                 }}>
+//                   <option value="">-- Select Camera --</option>
+//                   {videoDevices.map((device) => (
+//                     <option key={device.deviceId} value={device.deviceId}>
+//                       {device.label || `Camera ${device.deviceId}`}
+//                     </option>
+//                   ))}
+//                 </select>
+//               )}
+//             </div>
+//           </div>
+
+//           <canvas ref={canvasRef} width={800} height={500} style={{ width: "100%", height: "auto", display: "block", backgroundColor: "#000" }} />
+
+//           <div style={{ marginTop: "2rem" }}>
+//             <strong>Adjust image:</strong>
+//             <div style={{ display: "grid", gap: "1rem", maxWidth: "500px" }}>
+//               <label>Contrast: <input type="range" min="0" max="3" step="0.01" value={contrast} onChange={(e) => { setContrast(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+//               <label>Sharpness: <input type="range" min="0" max="1" step="0.01" value={sharpness} onChange={(e) => { setSharpness(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+//               <label>Saturation: <input type="range" min="0" max="2" step="0.01" value={saturation} onChange={(e) => { setSaturation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+//               <label>Pixelation: <input type="range" min="1" max="100" step="1" value={pixelation} onChange={(e) => { setPixelation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+//             </div>
+//           </div>
+
+//           <video ref={webcamRef} playsInline muted autoPlay style={{ display: "none" }} />
+//           <video ref={videoRef} autoPlay muted loop playsInline style={{ display: "none" }} />
+//           <img ref={imageRef} alt="input" style={{ display: "none" }} />
+//         </div>
+//       </div>
+//       <FooterBar ref={footerRef} />
+//     </div>
+//   );
+// }
+
+// export default ProjectGlyphs;
+
+
+
+
+
+
 import React, { useEffect, useRef, useState } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
@@ -552,6 +881,10 @@ function ProjectGlyphs() {
   const [videoDevices, setVideoDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [isFrontFacing, setIsFrontFacing] = useState(false);
+  const [glyphImages, setGlyphImages] = useState([]);
+  const [glyphAtlas, setGlyphAtlas] = useState(null);
+  const [showGlyphPreview, setShowGlyphPreview] = useState(false);
+  const [glyphAvgColors, setGlyphAvgColors] = useState([]);
 
   const headerRef = useRef(null);
   const footerRef = useRef(null);
@@ -559,6 +892,157 @@ function ProjectGlyphs() {
   const imageRef = useRef(null);
   const videoRef = useRef(null);
   const webcamRef = useRef(null);
+
+  const getAverageRGB = (ctx, width, height) => {
+    const imageData = ctx.getImageData(0, 0, width, height).data;
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < imageData.length; i += 4) {
+      r += imageData[i];
+      g += imageData[i + 1];
+      b += imageData[i + 2];
+    }
+    const total = imageData.length / 4;
+    return [r / total, g / total, b / total];
+  };
+
+  const processAndCropGlyphs = async (files) => {
+    const croppedImages = [];
+    const avgColors = [];
+    const promises = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith("image")) continue;
+
+      const promise = new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => {
+          const side = Math.min(image.width, image.height);
+          const canvas = document.createElement("canvas");
+          canvas.width = canvas.height = 64;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(
+            image,
+            (image.width - side) / 2,
+            (image.height - side) / 2,
+            side,
+            side,
+            0,
+            0,
+            64,
+            64
+          );
+
+          const [avgR, avgG, avgB] = getAverageRGB(ctx, 64, 64);
+          avgColors.push([avgR / 255, avgG / 255, avgB / 255]);
+
+          canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            croppedImages.push({ id: i, url, blob, loading: false });
+            resolve();
+          }, "image/jpeg", 0.9);
+        };
+        image.src = URL.createObjectURL(file);
+      });
+
+      promises.push(promise);
+    }
+
+    await Promise.all(promises);
+
+    // Build glyph atlas
+    const cols = Math.ceil(Math.sqrt(croppedImages.length));
+    const rows = Math.ceil(croppedImages.length / cols);
+    const atlasCanvas = document.createElement("canvas");
+    atlasCanvas.width = cols * 64;
+    atlasCanvas.height = rows * 64;
+    const ctx = atlasCanvas.getContext("2d");
+
+    const drawPromises = croppedImages.map((img, i) => {
+      return new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => {
+          const x = (i % cols) * 64;
+          const y = Math.floor(i / cols) * 64;
+          ctx.drawImage(image, x, y, 64, 64);
+          resolve();
+        };
+        image.src = img.url;
+      });
+    });
+
+    await Promise.all(drawPromises);
+    // 🔁 Flip atlas vertically to match WebGL coordinates
+    const flippedCanvas = document.createElement("canvas");
+    flippedCanvas.width = atlasCanvas.width;
+    flippedCanvas.height = atlasCanvas.height;
+    const flippedCtx = flippedCanvas.getContext("2d");
+
+    flippedCtx.translate(0, atlasCanvas.height);
+    flippedCtx.scale(1, -1);
+    flippedCtx.drawImage(atlasCanvas, 0, 0);
+
+    // ✅ Store flipped canvas as the actual glyph atlas
+    setGlyphAtlas(flippedCanvas);
+    setGlyphImages(croppedImages);
+    setGlyphAvgColors(avgColors);
+    setShowGlyphPreview(true);
+    setNeedsUpdate(true);
+  };
+
+  const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (webcamRef.current?.srcObject) {
+      webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
+      webcamRef.current.srcObject = null;
+    }
+
+    setSelectedDeviceId("");
+    setIsFrontFacing(false);
+
+    const isVideo = file.type.startsWith("video");
+
+    if (!isVideo) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
+          const newWidth = img.width * scale;
+          const newHeight = img.height * scale;
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+          const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+          setMediaSource(null);
+          setMediaType(null);
+          setTimeout(() => {
+            setMediaType("image");
+            setMediaSource(jpegDataUrl);
+            setNeedsUpdate(true);
+          }, 50);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      const url = URL.createObjectURL(file);
+      setMediaSource(null);
+      setMediaType(null);
+      setTimeout(() => {
+        setMediaType("video");
+        setMediaSource(url);
+        setNeedsUpdate(true);
+      }, 50);
+    }
+
+    e.target.value = null;
+  };
 
   useEffect(() => {
     const resizeCanvas = () => {
@@ -576,6 +1060,31 @@ function ProjectGlyphs() {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
     return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
+      const newWidth = img.width * scale;
+      const newHeight = img.height * scale;
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+      const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+      if (imageRef.current) {
+        imageRef.current.onload = () => {
+          setMediaType("image");
+          setMediaSource(jpegDataUrl);
+          setNeedsUpdate(true);
+        };
+        imageRef.current.src = jpegDataUrl;
+      }
+    };
+    img.src = `${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`;
   }, []);
 
   useEffect(() => {
@@ -645,67 +1154,6 @@ function ProjectGlyphs() {
     };
   }, [selectedDeviceId, videoDevices]);
 
-  const onFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (webcamRef.current?.srcObject) {
-      webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
-      webcamRef.current.srcObject = null;
-    }
-
-    setSelectedDeviceId("");
-    setIsFrontFacing(false);
-
-    const isVideo = file.type.startsWith("video");
-
-    // 🔁 Image logic
-    if (!isVideo) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
-          const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
-          const newWidth = img.width * scale;
-          const newHeight = img.height * scale;
-
-          canvas.width = newWidth;
-          canvas.height = newHeight;
-          ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-          // 💾 Export to compressed JPEG (quality adjustable)
-          const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.8); // 0.8 = 80% quality
-
-          setMediaSource(null);
-          setMediaType(null);
-          setTimeout(() => {
-            setMediaType("image");
-            setMediaSource(jpegDataUrl);
-            setNeedsUpdate(true);
-          }, 50);
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      const url = URL.createObjectURL(file);
-      setMediaSource(null);
-      setMediaType(null);
-      setTimeout(() => {
-        setMediaType("video");
-        setMediaSource(url);
-        setNeedsUpdate(true);
-      }, 50);
-    }
-
-    e.target.value = null;
-  };
-
-
-
   useEffect(() => {
     if (mediaType === "video" && videoRef.current) {
       videoRef.current.src = mediaSource;
@@ -719,7 +1167,6 @@ function ProjectGlyphs() {
 
   useEffect(() => {
     if (!canvasRef.current || !mediaType || !mediaSource) return;
-
     const stopRendering = setupWebGLRenderer({
       canvas: canvasRef.current,
       imageRef,
@@ -729,12 +1176,14 @@ function ProjectGlyphs() {
       contrast,
       sharpness,
       saturation,
-      needsUpdate,
       pixelation,
       isFrontFacing,
+      needsUpdate,
       setNeedsUpdate,
+      glyphAvgColors,
+      glyphAtlas,
+      showGlyphPreview,
     });
-
     return () => stopRendering?.();
   }, [
     mediaSource,
@@ -745,105 +1194,65 @@ function ProjectGlyphs() {
     needsUpdate,
     pixelation,
     isFrontFacing,
+    glyphAvgColors,
+    glyphAtlas,
+    showGlyphPreview,
   ]);
-
-
-
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      const scale = Math.min(1, MAX_SIZE / Math.max(img.width, img.height));
-      const newWidth = img.width * scale;
-      const newHeight = img.height * scale;
-
-      canvas.width = newWidth;
-      canvas.height = newHeight;
-      ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-      const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.8); // Compress as JPEG
-
-      if (imageRef.current) {
-        imageRef.current.onload = () => {
-          setMediaType("image");
-          setMediaSource(jpegDataUrl);
-          setNeedsUpdate(true);
-        };
-        imageRef.current.src = jpegDataUrl;
-      }
-    };
-
-  // Load the original PNG source
-  img.src = `${process.env.PUBLIC_URL}/SkyWhales_Noracored.png`;
-}, []);
-
-
 
   return (
     <div style={{ minHeight: "100vh", overflowY: "auto", position: "relative" }}>
       <HeaderBar ref={headerRef} />
       <div style={{ paddingTop: `${headerHeight}px`, minHeight: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`, paddingBottom: `${footerHeight}px`, backgroundColor: "#f5f5f5" }}>
         <div style={{ maxWidth: "900px", margin: "0 auto", padding: "40px 20px", fontFamily: "sans-serif", color: "#222" }}>
-          <h2>
-            This project is inspired by{" "}
-            <a
-              href="https://www.instagram.com/p/DAb7eYAx8q3/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              @the.well.tarot
-            </a>
-          </h2>
-          <p style={{ lineHeight: "1.6" }}>
-            This project explores photomosaics — images built from smaller component images (or “glyphs”). Each glyph is chosen to match the color or intensity of a region of the source image. See below an example of this using artwork provided by{" "}
-            <a
-              href="https://www.instagram.com/noracored/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              @Noracored
-            </a>.
-          </p>
-
+          <h2>Photomosaic Project</h2>
 
           <div style={{ marginTop: "2rem" }}>
-            <strong>Select media source:</strong>
-            <div style={{ display: "flex", gap: "1rem", margin: "1rem 0", flexWrap: "wrap", alignItems: "center" }}>
-              <label htmlFor="fileInput" style={{ cursor: "pointer", userSelect: "none", display: "inline-block", padding: "0.5em 1em", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#f0f0f0" }}>
-                🗂️ File from Computer (Image or Video)
-              </label>
-              <input id="fileInput" type="file" accept="image/*,video/*" style={{ display: "none" }} onChange={onFileChange} />
-              {videoDevices.length > 0 && (
-                <select value={selectedDeviceId} onChange={(e) => {
-                  setSelectedDeviceId(e.target.value);
-                  setMediaType(null);
-                  setMediaSource(null);
-                  setNeedsUpdate(true);
-                }}>
-                  <option value="">-- Select Camera --</option>
-                  {videoDevices.map((device) => (
-                    <option key={device.deviceId} value={device.deviceId}>
-                      {device.label || `Camera ${device.deviceId}`}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
+            <label htmlFor="fileInput" style={{ cursor: "pointer", padding: "0.5em 1em", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#f0f0f0" }}>
+              🗂️ File from Computer (Image or Video)
+            </label>
+            <input id="fileInput" type="file" accept="image/*,video/*" style={{ display: "none" }} onChange={onFileChange} />
+            {videoDevices.length > 0 && (
+              <select value={selectedDeviceId} onChange={(e) => setSelectedDeviceId(e.target.value)}>
+                <option value="">-- Select Camera --</option>
+                {videoDevices.map((device) => (
+                  <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${device.deviceId}`}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          <div style={{ marginTop: "2rem" }}>
+            <label htmlFor="glyphInput" style={{ cursor: "pointer", padding: "0.5em 1em", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#e0f7fa" }}>
+              📂 Upload Glyph Folder
+            </label>
+            <input id="glyphInput" type="file" accept="image/*" webkitdirectory="true" directory="" multiple style={{ display: "none" }} onChange={(e) => processAndCropGlyphs([...e.target.files])} />
           </div>
 
           <canvas ref={canvasRef} width={800} height={500} style={{ width: "100%", height: "auto", display: "block", backgroundColor: "#000" }} />
 
           <div style={{ marginTop: "2rem" }}>
-            <strong>Adjust image:</strong>
-            <div style={{ display: "grid", gap: "1rem", maxWidth: "500px" }}>
-              <label>Contrast: <input type="range" min="0" max="3" step="0.01" value={contrast} onChange={(e) => { setContrast(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
-              <label>Sharpness: <input type="range" min="0" max="1" step="0.01" value={sharpness} onChange={(e) => { setSharpness(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
-              <label>Saturation: <input type="range" min="0" max="2" step="0.01" value={saturation} onChange={(e) => { setSaturation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
-              <label>Pixelation: <input type="range" min="1" max="100" step="1" value={pixelation} onChange={(e) => { setPixelation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
-            </div>
+            <label>Contrast: <input type="range" min="0" max="3" step="0.01" value={contrast} onChange={(e) => { setContrast(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+            <label>Sharpness: <input type="range" min="0" max="1" step="0.01" value={sharpness} onChange={(e) => { setSharpness(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+            <label>Saturation: <input type="range" min="0" max="2" step="0.01" value={saturation} onChange={(e) => { setSaturation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+            <label>Pixelation: <input type="range" min="1" max="100" step="1" value={pixelation} onChange={(e) => { setPixelation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
           </div>
+
+          {glyphImages.length > 0 && (
+            <div style={{ marginTop: "2rem" }}>
+              <button onClick={() => setShowGlyphPreview(!showGlyphPreview)} style={{ padding: "0.5em 1em", border: "1px solid #aaa", backgroundColor: "#fff3e0", borderRadius: "4px" }}>
+                {showGlyphPreview ? "Hide Cropped Glyphs" : "View Cropped Glyphs"}
+              </button>
+              {showGlyphPreview && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))", gap: "8px", marginTop: "1rem" }}>
+                  {glyphImages.map((glyph) => (
+                    <div key={glyph.id} style={{ width: "100%", height: "80px", backgroundColor: "#eee", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <img src={glyph.url} alt={`glyph-${glyph.id}`} style={{ width: "100%", height: "auto", borderRadius: "4px" }} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <video ref={webcamRef} playsInline muted autoPlay style={{ display: "none" }} />
           <video ref={videoRef} autoPlay muted loop playsInline style={{ display: "none" }} />
