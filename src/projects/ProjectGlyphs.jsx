@@ -468,6 +468,7 @@ function ProjectGlyphs() {
   const imageRef = useRef(null);
   const videoRef = useRef(null);
   const webcamRef = useRef(null);
+  const activeSliderRef = useRef(null);
 
   function getRandomColor() {
     const hue = Math.floor(Math.random() * 360);      // Full hue range
@@ -503,15 +504,29 @@ function ProjectGlyphs() {
   }
 
   function handleSliderFocus(e) {
+    // Clear styles from previous active slider
+    if (activeSliderRef.current && activeSliderRef.current !== e.target) {
+      activeSliderRef.current.style.removeProperty("--thumb-color");
+      activeSliderRef.current.style.removeProperty("--track-color");
+    }
+
+    // Assign new random colors
     const thumbColor = getRandomColor();
     const trackColor = invertColor(thumbColor);
     e.target.style.setProperty("--thumb-color", rgbToCss(thumbColor));
     e.target.style.setProperty("--track-color", rgbToCss(trackColor));
+
+    // Save reference
+    activeSliderRef.current = e.target;
   }
 
   function handleSliderBlur(e) {
-    e.target.style.removeProperty("--thumb-color");
-    e.target.style.removeProperty("--track-color");
+    // Only clear if it's still the current one
+    if (activeSliderRef.current === e.target) {
+      e.target.style.removeProperty("--thumb-color");
+      e.target.style.removeProperty("--track-color");
+      activeSliderRef.current = null;
+    }
   }
 
 
@@ -714,6 +729,19 @@ function ProjectGlyphs() {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
     return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
+
+  useEffect(() => {
+    const handleGlobalPointerUp = () => {
+      if (activeSliderRef.current) {
+        activeSliderRef.current.style.removeProperty("--thumb-color");
+        activeSliderRef.current.style.removeProperty("--track-color");
+        activeSliderRef.current = null;
+      }
+    };
+
+    window.addEventListener("pointerup", handleGlobalPointerUp);
+    return () => window.removeEventListener("pointerup", handleGlobalPointerUp);
   }, []);
 
   useEffect(() => {
@@ -963,8 +991,8 @@ function ProjectGlyphs() {
                   setContrast(parseFloat(e.target.value));
                   setNeedsUpdate(true);
                 }}
-                onFocus={handleSliderFocus}
-                onBlur={handleSliderBlur}
+                onPointerDown={handleSliderFocus}
+                onPointerUp={handleSliderBlur}
               />
             </label>
 
@@ -980,8 +1008,8 @@ function ProjectGlyphs() {
                   setSharpness(parseFloat(e.target.value));
                   setNeedsUpdate(true);
                 }}
-                onFocus={handleSliderFocus}
-                onBlur={handleSliderBlur}
+                onPointerDown={handleSliderFocus}
+                onPointerUp={handleSliderBlur}
               />
             </label>
 
@@ -997,8 +1025,8 @@ function ProjectGlyphs() {
                   setSaturation(parseFloat(e.target.value));
                   setNeedsUpdate(true);
                 }}
-                onFocus={handleSliderFocus}
-                onBlur={handleSliderBlur}
+                onPointerDown={handleSliderFocus}
+                onPointerUp={handleSliderBlur}
               />
             </label>
 
@@ -1014,8 +1042,8 @@ function ProjectGlyphs() {
                   setPixelation(parseFloat(e.target.value));
                   setNeedsUpdate(true);
                 }}
-                onFocus={handleSliderFocus}
-                onBlur={handleSliderBlur}
+                onPointerDown={handleSliderFocus}
+                onPointerUp={handleSliderBlur}
               />
             </label>
           </div>
