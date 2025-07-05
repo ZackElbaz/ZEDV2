@@ -459,7 +459,7 @@ function ProjectGlyphs() {
   const [showGlyphPreview, setShowGlyphPreview] = useState(false);
   const [glyphAvgColors, setGlyphAvgColors] = useState([]);
   const [matchByIntensity, setMatchByIntensity] = useState(false);
-
+  const [glyphAtlasReady, setGlyphAtlasReady] = useState(false);
 
   const headerRef = useRef(null);
   const footerRef = useRef(null);
@@ -481,6 +481,8 @@ function ProjectGlyphs() {
   };
 
   const processAndCropGlyphs = async (files) => {
+    setGlyphAtlasReady(false);
+
     const imageEntries = files
       .filter(file => file.type.startsWith("image"))
       .map((file, index) => ({ file, index }));
@@ -590,6 +592,7 @@ function ProjectGlyphs() {
     setGlyphAvgColors(realAvgColors);      // Only real glyphs used for matching
     setShowGlyphPreview(true);
     setNeedsUpdate(true);
+    setGlyphAtlasReady(true);
   };
 
 
@@ -788,6 +791,7 @@ function ProjectGlyphs() {
       glyphAtlas,
       showGlyphPreview,
       matchByIntensity,
+      glyphAtlasReady,
     });
 
     return () => stopRendering?.();
@@ -804,6 +808,7 @@ function ProjectGlyphs() {
     glyphAtlas,
     showGlyphPreview,
     matchByIntensity,
+    glyphAtlasReady,
   ]);
 
   return (

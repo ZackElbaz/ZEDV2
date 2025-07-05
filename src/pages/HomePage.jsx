@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Intensity matching for glyphs is introduced!" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "Glyph folders can be changed with video input" && git push origin main && npm run build && npm run deploy
 

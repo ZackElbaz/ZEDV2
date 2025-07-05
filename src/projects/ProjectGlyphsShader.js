@@ -136,6 +136,7 @@ export function setupWebGLRenderer({
   glyphAtlas,
   showGlyphPreview,
   matchByIntensity,
+  glyphAtlasReady,
 }) {
   const gl = canvas.getContext("webgl");
   if (!gl) {
@@ -207,7 +208,7 @@ export function setupWebGLRenderer({
       return;
     }
 
-    const useGlyphs = showGlyphPreview && glyphAtlas && glyphAvgColors && glyphAvgColors.length > 0;
+    const useGlyphs = glyphAtlasReady && showGlyphPreview && glyphAtlas && glyphAvgColors && glyphAvgColors.length > 0;
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, imageTexture);
