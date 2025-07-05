@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Glyph folders can be changed with video input" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "Glyph sliders working" && git push origin main && npm run build && npm run deploy
 

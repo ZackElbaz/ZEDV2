@@ -439,6 +439,7 @@ import React, { useEffect, useRef, useState } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
 import { setupWebGLRenderer } from "./ProjectGlyphsShader";
+import './ProjectGlyphs.css';
 
 function ProjectGlyphs() {
   const MAX_SIZE = 1600;
@@ -467,6 +468,52 @@ function ProjectGlyphs() {
   const imageRef = useRef(null);
   const videoRef = useRef(null);
   const webcamRef = useRef(null);
+
+  function getRandomColor() {
+    const hue = Math.floor(Math.random() * 360);      // Full hue range
+    const saturation = 100;                           // Max saturation for vividness
+    const lightness = 50 + Math.random() * 10;        // Bright but not washed out (50–60%)
+    return hslToRgb(hue, saturation, lightness);
+  }
+  
+  function hslToRgb(h, s, l) {
+    s /= 100;
+    l /= 100;
+
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+
+    return {
+      r: Math.round(f(0) * 255),
+      g: Math.round(f(8) * 255),
+      b: Math.round(f(4) * 255),
+    };
+  }
+
+
+
+  function invertColor({ r, g, b }) {
+    return { r: 255 - r, g: 255 - g, b: 255 - b };
+  }
+
+  function rgbToCss({ r, g, b }) {
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  function handleSliderFocus(e) {
+    const thumbColor = getRandomColor();
+    const trackColor = invertColor(thumbColor);
+    e.target.style.setProperty("--thumb-color", rgbToCss(thumbColor));
+    e.target.style.setProperty("--track-color", rgbToCss(trackColor));
+  }
+
+  function handleSliderBlur(e) {
+    e.target.style.removeProperty("--thumb-color");
+    e.target.style.removeProperty("--track-color");
+  }
+
 
   const getAverageRGB = (ctx, width, height) => {
     const imageData = ctx.getImageData(0, 0, width, height).data;
@@ -812,41 +859,165 @@ function ProjectGlyphs() {
   ]);
 
   return (
-    <div style={{ minHeight: "100vh", overflowY: "auto", position: "relative" }}>
+    <div className="project-wrapper">
       <HeaderBar ref={headerRef} />
-      <div style={{ paddingTop: `${headerHeight}px`, minHeight: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`, paddingBottom: `${footerHeight}px`, backgroundColor: "#f5f5f5" }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto", padding: "40px 20px", fontFamily: "sans-serif", color: "#222" }}>
-          <h2>Photomosaic Project</h2>
+      <div
+        style={{
+          paddingTop: `${headerHeight}px`,
+          minHeight: `calc(100vh - ${headerHeight}px - ${footerHeight}px)`,
+          paddingBottom: `${footerHeight}px`,
+        }}
+      >
+        <div className="project-container">
+          <h2 className="project-title">GLYPHS</h2>
 
-          <div style={{ marginTop: "2rem" }}>
-            <label htmlFor="fileInput" style={{ cursor: "pointer", padding: "0.5em 1em", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#f0f0f0" }}>
-              🗂️ File from Computer (Image or Video)
+          <p className="project-subtitle">
+            This project is inspired by{" "}
+            <a
+              href="https://www.instagram.com/reel/DAb7eYAx8q3/?igsh=MThtYWVtdWN4MXIyaA=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="project-link"
+            >
+              the.well.tarot
+            </a>.
+          </p>
+
+          <p className="project-subtitle" style={{ marginTop: "1em" }}>
+            The placeholder artwork and placeholder glyphs have been provided by{" "}
+            <a
+              href="https://www.instagram.com/noracored?igsh=Nml3amZtMHNlMnRu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="project-link"
+            >
+              noracored
+            </a>.
+          </p>
+
+          <p className="project-description">
+            This program creates photomosaic images by replacing square sections (kernels) of an input image (or video) with smaller 'glyph' images.
+            Each kernel is matched to the glyph that best fits it—either by comparing color (Red, Green, and Blue values) or brightness (Greyscale Intensity).
+            When matching by color, the glyph with the closest average color to the kernel is selected.
+            When matching by intensity, only brightness is considered, and the glyph with a similar lightness or darkness is chosen.
+            This creates an overall image that retains its structure but is built entirely out of glyphs.
+          </p>
+
+          <div className="input-section">
+            {/* File from Computer */}
+            <label htmlFor="fileInput" className="input-button">
+              🗂️ Media File from Computer
             </label>
-            <input id="fileInput" type="file" accept="image/*,video/*" style={{ display: "none" }} onChange={onFileChange} />
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/*,video/*"
+              style={{ display: "none" }}
+              onChange={onFileChange}
+            />
+
+            {/* Select Camera (if available) */}
             {videoDevices.length > 0 && (
-              <select value={selectedDeviceId} onChange={(e) => setSelectedDeviceId(e.target.value)}>
-                <option value="">-- Select Camera --</option>
+              <select
+                value={selectedDeviceId}
+                onChange={(e) => setSelectedDeviceId(e.target.value)}
+                className="input-select"
+              >
+                <option value="">Select Camera</option>
                 {videoDevices.map((device) => (
-                  <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${device.deviceId}`}</option>
+                  <option key={device.deviceId} value={device.deviceId}>
+                    {device.label || `Camera ${device.deviceId}`}
+                  </option>
                 ))}
               </select>
             )}
-          </div>
 
-          <div style={{ marginTop: "2rem" }}>
-            <label htmlFor="glyphInput" style={{ cursor: "pointer", padding: "0.5em 1em", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#e0f7fa" }}>
+            {/* Upload Glyph Folder */}
+            <label htmlFor="glyphInput" className="input-button">
               📂 Upload Glyph Folder
             </label>
-            <input id="glyphInput" type="file" accept="image/*" webkitdirectory="true" directory="" multiple style={{ display: "none" }} onChange={(e) => processAndCropGlyphs([...e.target.files])} />
+            <input
+              id="glyphInput"
+              type="file"
+              accept="image/*"
+              webkitdirectory="true"
+              directory=""
+              multiple
+              style={{ display: "none" }}
+              onChange={(e) => processAndCropGlyphs([...e.target.files])}
+            />
           </div>
 
           <canvas ref={canvasRef} width={800} height={500} style={{ width: "100%", height: "auto", display: "block", backgroundColor: "#000" }} />
 
-          <div style={{ marginTop: "2rem" }}>
-            <label>Contrast: <input type="range" min="0" max="3" step="0.01" value={contrast} onChange={(e) => { setContrast(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
-            <label>Sharpness: <input type="range" min="0" max="1" step="0.01" value={sharpness} onChange={(e) => { setSharpness(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
-            <label>Saturation: <input type="range" min="0" max="2" step="0.01" value={saturation} onChange={(e) => { setSaturation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
-            <label>Pixelation: <input type="range" min="1" max="100" step="1" value={pixelation} onChange={(e) => { setPixelation(parseFloat(e.target.value)); setNeedsUpdate(true); }} /></label>
+          <div className="slider-section">
+            <label className="slider-label">
+              Contrast:
+              <input
+                type="range"
+                min="0"
+                max="3"
+                step="0.01"
+                value={contrast}
+                onChange={(e) => {
+                  setContrast(parseFloat(e.target.value));
+                  setNeedsUpdate(true);
+                }}
+                onFocus={handleSliderFocus}
+                onBlur={handleSliderBlur}
+              />
+            </label>
+
+            <label className="slider-label">
+              Sharpness:
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={sharpness}
+                onChange={(e) => {
+                  setSharpness(parseFloat(e.target.value));
+                  setNeedsUpdate(true);
+                }}
+                onFocus={handleSliderFocus}
+                onBlur={handleSliderBlur}
+              />
+            </label>
+
+            <label className="slider-label">
+              Saturation:
+              <input
+                type="range"
+                min="0"
+                max="2"
+                step="0.01"
+                value={saturation}
+                onChange={(e) => {
+                  setSaturation(parseFloat(e.target.value));
+                  setNeedsUpdate(true);
+                }}
+                onFocus={handleSliderFocus}
+                onBlur={handleSliderBlur}
+              />
+            </label>
+
+            <label className="slider-label">
+              Pixelation:
+              <input
+                type="range"
+                min="1"
+                max="100"
+                step="1"
+                value={pixelation}
+                onChange={(e) => {
+                  setPixelation(parseFloat(e.target.value));
+                  setNeedsUpdate(true);
+                }}
+                onFocus={handleSliderFocus}
+                onBlur={handleSliderBlur}
+              />
+            </label>
           </div>
 
           {glyphImages.length > 0 && (

@@ -1,0 +1,137 @@
+/* Layout */
+.project-wrapper {
+  min-height: 100vh;
+  overflow-y: auto;
+  position: relative;
+  font-family: var(--font-main);
+  background-color: #f5f5f5;
+}
+
+.project-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0px 20px;
+  color: #222;
+}
+
+/* Headings & Text */
+.project-title {
+  font-size: 3rem;
+  margin-bottom: 0.5em;
+}
+
+.project-subtitle {
+  font-size: 1.1em;
+  line-height: 1.6;
+}
+
+.project-description {
+  font-size: 1em;
+  line-height: 1.6;
+  margin-top: 1em;
+}
+
+.project-link {
+  color: #0077cc;
+  text-decoration: underline;
+}
+
+/* Input Section Layout */
+.input-section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Unified Button & Select Style */
+.input-button,
+.input-select {
+  font-family: var(--font-main);
+  padding: 0.5em 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: border-radius 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+/* Select specific tweaks */
+.input-select {
+  font-family: var(--font-main);
+  padding: 0.5em 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: border-radius 0.2s;
+  box-sizing: border-box;
+
+  /* ✅ Let the browser size the width based on longest option */
+  width: max-content;
+}
+
+
+/* Optional visible outline for accessibility */
+.input-select:focus-visible {
+  outline: 2px solid #0077cc;
+  outline-offset: 2px;
+}
+
+
+.slider-section {
+  margin-top: 2rem;
+  margin-bottom: 4rem; /* 👈 Adds space below the sliders */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--font-main);
+  width: 100%;
+}
+
+.slider-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: #222;
+  font-weight: 500;
+}
+
+.slider-label input[type="range"] {
+  margin-top: 0.4rem;
+  appearance: none;
+  height: 10px;
+  background: var(--track-color, #ccc); /* dynamic */
+  border-radius: 4px;
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+/* Webkit (Chrome, Safari, Edge) */
+.slider-label input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 25px;                 /* Larger size for touch */
+  height: 25px;                /* Larger size for touch */
+  border-radius: 6px;          /* Rounded square */
+  background: var(--thumb-color, #888); /* dynamic */
+  cursor: pointer;
+  border: none;
+}
+
+/* Firefox */
+.slider-label input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--thumb-color, #888); /* dynamic */
+  cursor: pointer;
+  border: none;
+}
