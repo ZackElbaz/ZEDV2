@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Project and SearchBar Scrolling" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "Glyphs are Introduced!" && git push origin main && npm run build && npm run deploy
 

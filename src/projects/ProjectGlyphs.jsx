@@ -859,9 +859,9 @@
 
 
 
-
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// working but not text for credit
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 import React, { useEffect, useRef, useState } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
@@ -906,21 +906,20 @@ function ProjectGlyphs() {
   };
 
   const processAndCropGlyphs = async (files) => {
-    const croppedImages = [];
-    const avgColors = [];
-    const promises = [];
+    const imageEntries = files
+      .filter(file => file.type.startsWith("image"))
+      .map((file, index) => ({ file, index }));
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (!file.type.startsWith("image")) continue;
-
-      const promise = new Promise((resolve) => {
+    const results = await Promise.all(imageEntries.map(({ file, index }) =>
+      new Promise(resolve => {
         const image = new Image();
         image.onload = () => {
           const side = Math.min(image.width, image.height);
           const canvas = document.createElement("canvas");
           canvas.width = canvas.height = 64;
           const ctx = canvas.getContext("2d");
+
+          ctx.clearRect(0, 0, 64, 64);
           ctx.drawImage(
             image,
             (image.width - side) / 2,
@@ -934,61 +933,85 @@ function ProjectGlyphs() {
           );
 
           const [avgR, avgG, avgB] = getAverageRGB(ctx, 64, 64);
-          avgColors.push([avgR / 255, avgG / 255, avgB / 255]);
-
           canvas.toBlob((blob) => {
             const url = URL.createObjectURL(blob);
-            croppedImages.push({ id: i, url, blob, loading: false });
-            resolve();
+            resolve({
+              index,
+              avgColor: [avgR / 255, avgG / 255, avgB / 255],
+              glyph: { id: index, url, blob, loading: false },
+            });
           }, "image/jpeg", 0.9);
         };
         image.src = URL.createObjectURL(file);
-      });
+      })
+    ));
 
-      promises.push(promise);
+    // Sort by index to guarantee consistency
+    results.sort((a, b) => a.index - b.index);
+
+    const realGlyphs = results.map(r => r.glyph);
+    const realAvgColors = results.map(r => r.avgColor);
+
+    // 🧩 Build the grid dimensions
+    const totalGlyphs = realGlyphs.length;
+    const cols = Math.ceil(Math.sqrt(totalGlyphs));
+    const rows = Math.ceil(totalGlyphs / cols);
+    const fullCount = cols * rows;
+
+    // ➕ Pad with dummy blank glyphs
+    const paddedGlyphs = [...realGlyphs];
+    const paddedAvgColors = [...realAvgColors];
+
+    while (paddedGlyphs.length < fullCount) {
+      const dummyCanvas = document.createElement("canvas");
+      dummyCanvas.width = dummyCanvas.height = 64;
+      const blankCtx = dummyCanvas.getContext("2d");
+      blankCtx.clearRect(0, 0, 64, 64);
+
+      const dummyUrl = dummyCanvas.toDataURL("image/png");
+      paddedGlyphs.push({ id: -1, url: dummyUrl, blob: null, loading: false });
+      paddedAvgColors.push([999, 999, 999]); // Unmatchable color
     }
 
-    await Promise.all(promises);
-
-    // Build glyph atlas
-    const cols = Math.ceil(Math.sqrt(croppedImages.length));
-    const rows = Math.ceil(croppedImages.length / cols);
+    // 🎨 Create the atlas
     const atlasCanvas = document.createElement("canvas");
     atlasCanvas.width = cols * 64;
     atlasCanvas.height = rows * 64;
     const ctx = atlasCanvas.getContext("2d");
 
-    const drawPromises = croppedImages.map((img, i) => {
-      return new Promise((resolve) => {
-        const image = new Image();
-        image.onload = () => {
-          const x = (i % cols) * 64;
-          const y = Math.floor(i / cols) * 64;
-          ctx.drawImage(image, x, y, 64, 64);
-          resolve();
-        };
-        image.src = img.url;
-      });
-    });
+    await Promise.all(
+      paddedGlyphs.map((img, i) =>
+        new Promise(resolve => {
+          const image = new Image();
+          image.onload = () => {
+            const x = (i % cols) * 64;
+            const y = Math.floor(i / cols) * 64;
+            ctx.drawImage(image, x, y, 64, 64);
+            resolve();
+          };
+          image.src = img.url;
+        })
+      )
+    );
 
-    await Promise.all(drawPromises);
-    // 🔁 Flip atlas vertically to match WebGL coordinates
+    // 🔁 Flip atlas vertically to match WebGL
     const flippedCanvas = document.createElement("canvas");
     flippedCanvas.width = atlasCanvas.width;
     flippedCanvas.height = atlasCanvas.height;
     const flippedCtx = flippedCanvas.getContext("2d");
-
     flippedCtx.translate(0, atlasCanvas.height);
     flippedCtx.scale(1, -1);
     flippedCtx.drawImage(atlasCanvas, 0, 0);
 
-    // ✅ Store flipped canvas as the actual glyph atlas
+    // 🧠 Update state
     setGlyphAtlas(flippedCanvas);
-    setGlyphImages(croppedImages);
-    setGlyphAvgColors(avgColors);
+    setGlyphImages(realGlyphs);            // Only real glyphs shown in preview
+    setGlyphAvgColors(realAvgColors);      // Only real glyphs used for matching
     setShowGlyphPreview(true);
     setNeedsUpdate(true);
   };
+
+
 
   const onFileChange = (e) => {
     const file = e.target.files[0];
