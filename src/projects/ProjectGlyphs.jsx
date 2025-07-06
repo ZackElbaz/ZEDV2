@@ -461,6 +461,7 @@ function ProjectGlyphs() {
   const [glyphAvgColors, setGlyphAvgColors] = useState([]);
   const [matchByIntensity, setMatchByIntensity] = useState(false);
   const [glyphAtlasReady, setGlyphAtlasReady] = useState(false);
+  const [loadingDots, setLoadingDots] = useState("");
 
   const headerRef = useRef(null);
   const footerRef = useRef(null);
@@ -584,7 +585,12 @@ function ProjectGlyphs() {
             });
           }, "image/jpeg", 0.9);
         };
-        image.src = URL.createObjectURL(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+
       })
     ));
 
@@ -652,7 +658,7 @@ function ProjectGlyphs() {
     setGlyphAtlas(flippedCanvas);
     setGlyphImages(realGlyphs);            // Only real glyphs shown in preview
     setGlyphAvgColors(realAvgColors);      // Only real glyphs used for matching
-    setShowGlyphPreview(true);
+    // setShowGlyphPreview(true);
     setNeedsUpdate(true);
     setGlyphAtlasReady(true);
   };
@@ -730,6 +736,73 @@ function ProjectGlyphs() {
     window.addEventListener("resize", resizeCanvas);
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
+
+  useEffect(() => {
+    const preloadGlyphsFromPublic = async () => {
+      const fileList = [
+        "Noracored1.jpg",
+        "Noracored2.jpg",
+        "Noracored3.jpg",
+        "Noracored4.png",
+        "Noracored5.png",
+        "Noracored7.png",
+        "Noracored8.png",
+        "Noracored9.png",
+        "Noracored10.png",
+        "Noracored11.png",
+        "Noracored12.png",
+        "Noracored13.jpg",
+        "Noracored14.jpg",
+        "Noracored15.jpg",
+        "Noracored16.jpg",
+        "Noracored17.jpg"
+      ];
+
+      const files = [];
+
+      for (const filename of fileList) {
+        const url = `${process.env.PUBLIC_URL}/glyphs/${filename}`;
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            const blob = await response.blob();
+            const mimeType = blob.type;
+            const file = new File([blob], filename, { type: mimeType });
+            files.push(file);
+            console.log("✅ Loaded:", filename);
+          } else {
+            console.warn("❌ Not found:", filename);
+          }
+        } catch (err) {
+          console.warn("Error fetching", filename, err);
+        }
+      }
+
+      if (files.length > 0) {
+        processAndCropGlyphs(files);
+      } else {
+        console.warn("🚨 No glyph files were successfully loaded.");
+      }
+    };
+
+    preloadGlyphsFromPublic();
+  }, []);
+
+ useEffect(() => {
+    if (glyphAtlasReady) return; // Stop animating once loaded
+
+    const interval = setInterval(() => {
+      setLoadingDots(prev => {
+        if (prev === "...") return "";
+        return prev + ".";
+      });
+    }, 300);
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [glyphAtlasReady]);
+
+
+
 
   useEffect(() => {
     const handleGlobalPointerUp = () => {
@@ -924,7 +997,7 @@ function ProjectGlyphs() {
           </p>
 
           <p className="project-description">
-            This program creates photomosaic images by replacing square sections (kernels) of an input image (or video) with smaller 'glyph' images.
+            This program creates photomosaic images by replacing square sections (kernels) of input media with smaller 'glyph' images.
             Each kernel is matched to the glyph that best fits it—either by comparing color (Red, Green, and Blue values) or brightness (Greyscale Intensity).
             When matching by color, the glyph with the closest average color to the kernel is selected.
             When matching by intensity, only brightness is considered, and the glyph with a similar lightness or darkness is chosen.
@@ -1047,30 +1120,79 @@ function ProjectGlyphs() {
               />
             </label>
           </div>
+                
+          {!glyphAtlasReady && (
+            <p style={{ marginTop: "2rem", fontWeight: "bold", textAlign: "left" }}>
+              Loading{loadingDots}
+            </p>
+          )}
+      
 
-          {glyphImages.length > 0 && (
+          {glyphAtlasReady && (
             <div style={{ marginTop: "2rem" }}>
-              <button onClick={() => setShowGlyphPreview(!showGlyphPreview)} style={{ padding: "0.5em 1em", border: "1px solid #aaa", backgroundColor: "#fff3e0", borderRadius: "4px" }}>
+              <button
+                onClick={() => setShowGlyphPreview(prev => !prev)}
+                style={{
+                  padding: "0.5em 1em",
+                  border: "1px solid #aaa",
+                  backgroundColor: "#fff3e0",
+                  borderRadius: "4px"
+                }}
+              >
                 {showGlyphPreview ? "Hide Cropped Glyphs" : "View Cropped Glyphs"}
               </button>
-              
+
               <button
-                onClick={() => { setMatchByIntensity(prev => !prev); setNeedsUpdate(true); }}
-                style={{ padding: "0.5em 1em", border: "1px solid #aaa", backgroundColor: "#e8f5e9", borderRadius: "4px" }}
+                onClick={() => {
+                  setMatchByIntensity(prev => !prev);
+                  setNeedsUpdate(true);
+                }}
+                style={{
+                  padding: "0.5em 1em",
+                  border: "1px solid #aaa",
+                  backgroundColor: "#e8f5e9",
+                  borderRadius: "4px",
+                  marginLeft: "1em"
+                }}
               >
                 Matching by: {matchByIntensity ? "Intensity" : "Color"}
               </button>
-              {showGlyphPreview && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))", gap: "8px", marginTop: "1rem" }}>
+
+              {showGlyphPreview && glyphImages.length > 0 && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
+                    gap: "8px",
+                    marginTop: "1rem",
+                    marginBottom: "4rem"
+                  }}
+                >
                   {glyphImages.map((glyph) => (
-                    <div key={glyph.id} style={{ width: "100%", height: "80px", backgroundColor: "#eee", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <img src={glyph.url} alt={`glyph-${glyph.id}`} style={{ width: "100%", height: "auto", borderRadius: "4px" }} />
+                    <div
+                      key={glyph.id}
+                      style={{
+                        width: "100%",
+                        height: "80px",
+                        backgroundColor: "#eee",
+                        borderRadius: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
+                    >
+                      <img
+                        src={glyph.url}
+                        alt={`glyph-${glyph.id}`}
+                        style={{ width: "100%", height: "auto", borderRadius: "4px" }}
+                      />
                     </div>
                   ))}
                 </div>
               )}
             </div>
           )}
+
 
           <video ref={webcamRef} playsInline muted autoPlay style={{ display: "none" }} />
           <video ref={videoRef} autoPlay muted loop playsInline style={{ display: "none" }} />
