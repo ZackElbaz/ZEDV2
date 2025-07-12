@@ -50,7 +50,7 @@
 .input-button,
 .input-select {
   font-family: var(--font-main);
-  padding: 0.5em 1em;
+  padding: 0.5em 0.5em;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;

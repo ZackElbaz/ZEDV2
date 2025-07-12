@@ -857,7 +857,8 @@ function ProjectGlyphs() {
 
   useEffect(() => {
     async function startCamera() {
-      if (!selectedDeviceId) {
+      if (!selectedDeviceId && !isFrontFacing) {
+        // Stop any existing stream
         if (webcamRef.current?.srcObject) {
           webcamRef.current.srcObject.getTracks().forEach((t) => t.stop());
           webcamRef.current.srcObject = null;
@@ -874,9 +875,17 @@ function ProjectGlyphs() {
           webcamRef.current.srcObject = null;
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { deviceId: { exact: selectedDeviceId } },
-        });
+        let constraints = { video: true };
+
+        if (selectedDeviceId) {
+          constraints.video = { deviceId: { exact: selectedDeviceId } };
+        } else {
+          constraints.video = {
+            facingMode: isFrontFacing ? "user" : "environment"
+          };
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
         if (webcamRef.current) {
           webcamRef.current.srcObject = stream;
@@ -887,13 +896,11 @@ function ProjectGlyphs() {
           setMediaSource("webcam");
         }
 
-        const device = videoDevices.find((d) => d.deviceId === selectedDeviceId);
-        if (device) {
-          const label = device.label.toLowerCase();
+        if (selectedDeviceId) {
+          const device = videoDevices.find(d => d.deviceId === selectedDeviceId);
+          const label = device?.label?.toLowerCase() || "";
           const frontKeywords = ["front", "user", "selfie"];
-          setIsFrontFacing(frontKeywords.some((kw) => label.includes(kw)));
-        } else {
-          setIsFrontFacing(false);
+          setIsFrontFacing(frontKeywords.some(kw => label.includes(kw)));
         }
       } catch (error) {
         console.error("Error accessing camera", error);
@@ -901,6 +908,7 @@ function ProjectGlyphs() {
         setSelectedDeviceId("");
       }
     }
+
     startCamera();
     return () => {
       if (webcamRef.current?.srcObject) {
@@ -1002,6 +1010,9 @@ function ProjectGlyphs() {
             When matching by color, the glyph with the closest average color to the kernel is selected.
             When matching by intensity, only brightness is considered, and the glyph with a similar lightness or darkness is chosen.
             This creates an overall image that retains its structure but is built entirely out of glyphs.
+          </p>
+          <p className="project-description">
+            Scroll down to the bottom of the page to enable/disable the glyph overlay.
           </p>
 
           <div className="input-section">
