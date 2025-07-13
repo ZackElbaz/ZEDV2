@@ -1,5 +1,5 @@
 // // ProjectHalftones.jsx
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import HeaderBar from "../components/HeaderBar";
 import FooterBar from "../components/FooterBar";
 import { initHalftoneShader } from "./ProjectHalftonesShader";
@@ -9,6 +9,10 @@ export default function ProjectHalftones() {
   const canvasRef = useRef(null);
   const shaderRef = useRef(null);
   const activeSliderRef = useRef(null);
+  
+  const refJpg = useRef(null);
+  const [jpgHeight, setJpgHeight] = useState(null);
+
 
   const paramsRef = useRef({
     dotRadius: 0.5,
@@ -49,6 +53,19 @@ export default function ProjectHalftones() {
 
     return () => window.removeEventListener("resize", resizeCanvas);
   }, []);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (refJpg.current) {
+        setJpgHeight(refJpg.current.clientHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -112,15 +129,30 @@ export default function ProjectHalftones() {
             (Cyan, Magenta, Yellow, and Black) into full-colour images. By varying the size and spacing 
             of tiny coloured dots, printers trick your eyes into seeing smooth shades and millions of colours. 
             It’s the same technique that brought newspapers, comic books, and vintage posters to life, and it’s still used today.
-          </p>
+          </p>  
+          <img
+            ref={refJpg}
+            src={`${process.env.PUBLIC_URL}/HalftoneHeroes.jpg`}
+            alt="Halftone Heroes"
+            className="intro-image"
+          />
           <p>
             Halftone images may look smooth and natural, but under the surface they’re built on a carefully planned system of dots. 
             Each colour's dots are placed on their own invisible grid, and these grids are rotated at different angles to avoid 
-            something called moiré patterns (strange ripples or wavy lines that show up when dot patterns overlap the wrong way). 
+            something called <strong>moiré patterns </strong> (strange ripples or wavy lines that show up when dot patterns overlap the wrong way). 
             If two grids line up too closely, they interfere with each other and create messy visual artefacts. To fix this, 
             printers rotate each layer just enough so the dots blend naturally to the eye. For example, cyan dots might be angled 
             at 15°, magenta at 75°, yellow at 0°, and black at 45°.
           </p>
+          <img
+            src={`${process.env.PUBLIC_URL}/MoireGif_noahhradek.gif`}
+            alt="Moire Gif from [https://medium.com/@noahhradek/moir%C3%A9-patterns-5ebce7c299ae]"
+            className="intro-image"
+            style={{
+              height: jpgHeight ? `${jpgHeight}px` : "auto",
+              objectFit: "cover",
+            }}
+          />
           <p>
             These coloured layers work together using a process called <strong>subtractive colour mixing</strong>. Unlike screens, 
             which use light to mix red, green, and blue (additive mixing), printing uses ink to absorb light. Each ink subtracts 
@@ -129,7 +161,15 @@ export default function ProjectHalftones() {
              to deepen shadows and enhance contrast. It’s a subtle trick, but it makes all the difference, keeping printed images
               clean, detailed, and smooth.
           </p>
-
+          <img
+            src={`${process.env.PUBLIC_URL}/AdditiveAndSubtractiveColourMixing_mayurij.gif`}
+            alt="Colour Theory Gif from [https://medium.com/@mayurij/introduction-to-color-theory-part-i-f16da6cad220]"
+            className="intro-image"
+            style={{
+              height: jpgHeight ? `${jpgHeight}px` : "auto",
+              objectFit: "cover",
+            }}
+          />
           <p>
             Try experimenting with the sliders below to see how the halftone system responds. Adjust the rotation angles of the 
             coloured grids to make moiré patterns emerge. You can also toggle colours on and off to see how subtractive colour mixing
