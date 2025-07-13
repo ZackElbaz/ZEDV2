@@ -1150,7 +1150,7 @@ function ProjectGlyphs() {
                   borderRadius: "4px"
                 }}
               >
-                {showGlyphPreview ? "Hide Cropped Glyphs" : "View Cropped Glyphs"}
+                {showGlyphPreview ? "Hide Glyphs" : "View Glyphs"}
               </button>
 
               <button

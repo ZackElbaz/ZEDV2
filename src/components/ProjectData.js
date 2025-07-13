@@ -21,6 +21,6 @@ export const initialProjects = [
     name: "HALFTONES",
     image: process.env.PUBLIC_URL + "/Halftones.jpg",
     date: "04/10/2024",
-    route: "/WorkInProgress"
+    route: "/halftones"
   }
 ];
