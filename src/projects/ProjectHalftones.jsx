@@ -212,7 +212,7 @@ export default function ProjectHalftones() {
               THIS VIDEO  
             </a>
             {" "} by Posy, who explains how halftones work in a much more fun way than I ever could. If you want to learn
-            more about halftoneson this website feel free to keep reading below!
+            more about halftones on this website feel free to keep reading below!
           </p>
           <p>
             Halftones are a clever optical illusion used in real life printing to turn just a few ink colours 
