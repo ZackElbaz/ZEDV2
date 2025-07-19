@@ -161,3 +161,25 @@
   object-fit: cover;
   overflow: hidden;
 }
+
+
+.upload-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.upload-button {
+  background-color: var(--thumb-color, #000); /* reuse the thumb color */
+  color: var(--thumb-text-color, white); /* default text color */
+  font-weight: bold;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
