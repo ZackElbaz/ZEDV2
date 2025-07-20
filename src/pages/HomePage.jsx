@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Credit where credit is due" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "BOIDS BOIDS BOIDS BOIDS" && git push origin main && npm run build && npm run deploy
 

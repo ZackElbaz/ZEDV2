@@ -1,3 +1,4 @@
+//ProjectData.js
 export const initialProjects = [
   {
     name: "REACTION DIFFUSION",
@@ -8,7 +9,7 @@ export const initialProjects = [
   {
     name: "GLYPHS",
     image: process.env.PUBLIC_URL + "/Blocks.jpg",
-    date: "05/28/2024",
+    date: "05/04/2025",
     route: "/glyphs"
   },
   {
@@ -20,7 +21,13 @@ export const initialProjects = [
   {
     name: "HALFTONES",
     image: process.env.PUBLIC_URL + "/Halftones.jpg",
-    date: "04/10/2024",
+    date: "07/19/2025",
     route: "/halftones"
+  },
+  {
+    name: "BOIDS",
+    image: process.env.PUBLIC_URL + "/BOIDS.png",
+    date: "07/20/2025",
+    route: "/boids"
   }
 ];
