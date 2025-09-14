@@ -29,5 +29,11 @@ export const initialProjects = [
     image: process.env.PUBLIC_URL + "/BOIDS.png",
     date: "07/20/2025",
     route: "/boids"
+  },
+  {
+    name: "VORONOI",
+    image: process.env.PUBLIC_URL + "/Giraffe.png",
+    date: "08/19/2025",
+    route: "/voronoi"
   }
 ];

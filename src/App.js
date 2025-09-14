@@ -7,6 +7,7 @@ import WIP from "./projects/WorkInProgress";
 import ProjectGlyphs from "./projects/ProjectGlyphs";
 import ProjectHalftones from "./projects/ProjectHalftones";
 import ProjectBoids from "./projects/ProjectBoids";
+import ProjectVoronoi from "./projects/ProjectVoronoi";
 import MAINTENENCE from "./projects/UnderMaintenance";
 
 
@@ -30,6 +31,7 @@ function App() {
         <Route path="/glyphs" element={<ProjectGlyphs />} />
         <Route path="/halftones" element={<ProjectHalftones />} />
         <Route path="/boids" element={<ProjectBoids />} />
+        <Route path="/voronoi" element={<ProjectVoronoi />} />
         <Route path="/WorkInProgress" element={<WIP />} />
         <Route path="/UnderMaintenance" element={<MAINTENENCE />} />
       </Routes>

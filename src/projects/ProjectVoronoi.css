@@ -1,0 +1,174 @@
+/* ProjectVoronoi.css */
+/* (unchanged from your version; included for completeness) */
+
+.project-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: var(--font-main, sans-serif);
+  background-color: white;
+  overflow: hidden;
+}
+
+.project-main {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.canvas-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 10px 10px;
+  box-sizing: border-box;
+}
+
+.project-canvas {
+  width: 100%;
+  max-width: 900px;
+  max-height: 400px;
+  aspect-ratio: 1 / 1;
+  display: block;
+  background-color: white;
+}
+
+.slider-stack {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-bottom: 90px;
+}
+
+.slider-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #222;
+}
+
+.slider-label input[type="range"] {
+  margin-top: 0.5rem;
+  appearance: none;
+  height: 10px;
+  background: var(--track-color, #ccc);
+  border-radius: 4px;
+  outline: none;
+  transition: background 0.3s ease;
+  width: 100%;
+}
+
+.slider-label input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--thumb-color, #888);
+  border: none;
+  cursor: pointer;
+}
+
+.slider-label input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--thumb-color, #888);
+  border: none;
+  cursor: pointer;
+}
+
+.visibility-slider-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.visibility-toggle {
+  flex-shrink: 0;
+  flex-basis: 140px;
+  background: none;
+  border: 1px solid #888;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.3s ease;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.visibility-toggle:hover {
+  background: #eee;
+}
+
+.visibility-toggle.inactive {
+  opacity: 0.4;
+}
+
+.visibility-slider-row input[type="range"] {
+  flex-grow: 1;
+}
+
+.intro-section {
+  margin-top: 90px;
+  max-width: 900px;
+  width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+  text-align: left;
+  color: #000000;
+}
+
+.intro-section h1 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.intro-section p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.intro-image {
+  width: 100%;
+  max-width: 900px;
+  display: block;
+  margin: 1rem auto;
+  box-sizing: border-box;
+}
+
+.intro-image:nth-of-type(2) {
+  max-height: 300px;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.upload-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.upload-button {
+  background-color: var(--thumb-color, #000);
+  color: var(--thumb-text-color, white);
+  font-weight: 500;
+  padding: 0.6rem 0.6rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
