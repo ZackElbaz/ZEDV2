@@ -269,10 +269,9 @@ export default function ProjectVoronoi() {
 
         {/* What is stippling + how artists actually do it */}
         <p style={{ marginTop: 6, color: "#475569" }}>
-          <strong>Stippling</strong> is drawing with tiny dots. To make shadows,
-          artists simply pack <em>more dots</em> into darker areas and leave
-          highlights almost empty. Along curves and edges they’ll sometimes lay
-          down little chains of dots—gentle dotted hatching—to echo the form and
+          <a href="https://en.wikipedia.org/wiki/Stippling" target="_blank" rel="noreferrer">Stippling</a> is drawing with tiny dots. To make shadows,
+          artists simply pack more dots into darker areas and leave highlights almost empty.
+          Along curves and edges they’ll sometimes lay down little chains of dots to echo the form and
           keep everything feeling smooth and alive.
         </p>
 
@@ -288,25 +287,31 @@ export default function ProjectVoronoi() {
         <h3 style={{ marginTop: 12 }}>How computers can do it</h3>
         <p>
           A computer can “stipple” an image by sprinkling a bunch of dots and
-          letting them self-organize. The trick is to let each dot <em>claim</em> the
-          pixels closest to it—this makes a patchwork called a{" "}
-          <strong>Voronoi diagram</strong>. Then we nudge each dot toward the
-          center of its patch and repeat. This gentle nudge-and-repeat step is
-          called <strong>relaxation</strong>.
+          letting them self-organize. The trick is to let each dot claim the
+          pixels closest to it, this makes a patchwork called a{" "}
+          <a href="https://en.wikipedia.org/wiki/Voronoi_diagram" target="_blank" rel="noreferrer">Voronoi diagram</a>.
+          Then we nudge each dot toward the center of its patch and repeat. This gentle nudge-and-repeat step is
+          called <a href="https://en.wikipedia.org/wiki/Lloyd%27s_algorithm" target="_blank" rel="noreferrer">relaxation</a>.
         </p>
         <p>
           There are two “centers” you’ll hear about:
           <br />
-          • <strong>Geometric center</strong>: the plain middle of the patch (ignores the image).<br />
-          • <strong>Center of mass</strong>: the <em>darkness-weighted</em> middle, so darker
-          pixels pull harder. That makes dots drift into shadows—exactly what an
-          artist would do by hand.
+          • <a href="https://en.wikipedia.org/wiki/Centroid" target="_blank" rel="noreferrer">Geometric centre</a>: the plain middle of the cell.<br />
+          • <a href="https://en.wikipedia.org/wiki/Center_of_mass" target="_blank" rel="noreferrer">Centre of mass</a>: the darkness-weighted middle, so darker
+          pixels pull harder. Think of it like a hammer—the geometric centre isn’t the same as the centre of mass.
+          Using weighted centres makes dots drift into shadows, exactly what an artist would do by hand.
         </p>
         <p>
           This patchwork isn’t just a computer thing—you see similar tiling in
-          nature, like the blocky mosaics on a <strong>giraffe’s coat</strong>. Different
-          processes make those patterns, but the look—regions that divide space
-          into “closest zones”—is very Voronoi-ish.
+          nature, like the blocky mosaics on a <a
+                href="https://en.wikipedia.org/wiki/Giraffe#Species_and_subspecies"
+                target="_blank"
+                rel="noreferrer"
+              >
+                giraffe’s coat
+              </a>
+              . Different
+          processes make those patterns, but the look is very Voronoi-ish.
         </p>
 
         {/* Voronoi (two GIFs side-by-side) */}
@@ -337,10 +342,10 @@ export default function ProjectVoronoi() {
         <h3 style={{ marginTop: 12 }}>Why hexagons keep popping up</h3>
         <p>
           Keep relaxing and the dots start arranging themselves like a{" "}
-          <strong>crystal</strong>. Locally, the patches want to be as even as possible,
-          so the dots settle into a near-<strong>hexagonal</strong> packing—the same way soap
-          bubbles and real crystals often organize when they’re minimizing
-          “energy.” It’s the universe whispering, “hexagons are efficient.”
+          <a href="https://en.wikipedia.org/wiki/Crystal" target="_blank" rel="noreferrer">crystal</a>.
+          Locally, the patches want to be as even as possible, so the dots settle into a hexagonal packing—the same way soap
+          bubbles and real crystals often organize when they’re minimising “energy”. Don’t worry though: it’s just the universe whispering,
+          “hexagons are efficient.”
         </p>
         <p>
           If you like satisfying packing stories, Veritasium’s video on{" "}
@@ -351,7 +356,7 @@ export default function ProjectVoronoi() {
           >
             Shade Balls
           </a>{" "}
-          shows how millions of spheres self-arrange on water—another glimpse of
+          shows how millions of spheres self-arrange on water, another glimpse of
           order emerging from simple rules.
         </p>
 
@@ -366,26 +371,30 @@ export default function ProjectVoronoi() {
         {/* Capacity Constrained Point Distribution */}
         <h3 style={{ marginTop: 12 }}>Capacity-Constrained: cleaner dots, fewer artifacts</h3>
         <p>
-          Pure relaxation tends to over-crystallize (hello, hexagons).{" "}
-          <strong>Capacity-Constrained Point Distribution (CCPD)</strong> fixes that by
-          giving every dot the <em>same amount of image mass</em> to “own”—dark pixels
-          weigh more than light ones. Instead of equal areas, each dot balances
-          equal <em>capacity</em>. The result keeps dots concentrated where the image
-          is dark, <em>without</em> locking into a rigid honeycomb.
+          Pure relaxation tends to over-crystallize (hello, hexagons).
+          <a
+            href="https://graphics.uni-konstanz.de/publikationen/Balzer2009CapacityconstrainedPoint/Balzer2009CapacityconstrainedPoint.pdf"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Capacity-Constrained Point Distribution (CCPD)
+          </a>
+          fixes that by giving every dot the same amount of image mass to “own”.
+          Dark pixels weigh more than light ones. Instead of equal areas, each dot balances equal capacity.
+          The result keeps dots concentrated where the image is dark, without locking into a rigid honeycomb.
         </p>
         <p>
-          That’s why CCPD looks more like <strong>blue noise</strong>: a beautifully even,
-          natural-looking randomness with <em>no obvious clumps or grid lines</em>.
-          In signal terms, blue-noise distributions suppress low-frequency
-          patterns (the banding your eye instantly notices) and push energy to
-          higher frequencies, so the texture feels smooth and artifact-free.
-        </p>
-        <p style={{ marginTop: 6 }}>
-          TL;DR: CCPD equalizes capacity—each dot owns the same image mass—so
-          you get rich shadows, crisp highlights, <em>fewer hexagons</em>, and a lovely
-          blue-noise stipple.
-        </p>
+        That’s why CCPD ends up looking like{" "}
+        <a href="https://en.wikipedia.org/wiki/Colors_of_noise#Blue_noise" target="_blank" rel="noreferrer">blue noise</a>
+        (dots that feel evenly sprinkled, with no clumps and no obvious grid). Our eyes are very good at spotting
+        stripes, bands, or checkerboard patterns, which can look distracting (that’s the “moiré” effect). Blue-noise
+        spreads tiny differences around so nothing lines up into bands, and the texture fades into the picture causing you to
+         just see smooth shading. Think of it like “salt shaken evenly over a surface”: you don’t notice the grains,
+        only the even tone.
+      </p>
+
       </div>
+
 
       {/* Canvas */}
       <div className="canvas-wrapper" style={{ minHeight: 420, marginTop: 12 }}>
