@@ -38,7 +38,7 @@ export const initialProjects = [
   },
   {
     name: "SUPERPIXELS",
-    image: process.env.PUBLIC_URL + "/SuperPixels.png",
+    image: process.env.PUBLIC_URL + "/GmaPainting.jpg",
     date: "09/15/2025",
     route: "/superpixels"
   },
