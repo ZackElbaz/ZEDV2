@@ -8,6 +8,7 @@ import ProjectGlyphs from "./projects/ProjectGlyphs";
 import ProjectHalftones from "./projects/ProjectHalftones";
 import ProjectBoids from "./projects/ProjectBoids";
 import ProjectVoronoi from "./projects/ProjectVoronoi";
+import SuperPixels from "./projects/ProjectSuperPixels";
 import MAINTENENCE from "./projects/UnderMaintenance";
 
 
@@ -32,6 +33,7 @@ function App() {
         <Route path="/halftones" element={<ProjectHalftones />} />
         <Route path="/boids" element={<ProjectBoids />} />
         <Route path="/voronoi" element={<ProjectVoronoi />} />
+        <Route path="/superpixels" element={<SuperPixels />} />
         <Route path="/WorkInProgress" element={<WIP />} />
         <Route path="/UnderMaintenance" element={<MAINTENENCE />} />
       </Routes>

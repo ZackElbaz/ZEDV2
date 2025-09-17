@@ -33,7 +33,13 @@ export const initialProjects = [
   {
     name: "VORONOI",
     image: process.env.PUBLIC_URL + "/Giraffe.png",
-    date: "08/19/2025",
+    date: "09/14/2025",
     route: "/voronoi"
-  }
+  },
+  {
+    name: "SUPERPIXELS",
+    image: process.env.PUBLIC_URL + "/SuperPixels.png",
+    date: "09/15/2025",
+    route: "/superpixels"
+  },
 ];
