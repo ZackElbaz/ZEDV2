@@ -2,7 +2,7 @@
   "name": "my-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://zackelbaz.github.io/ZEDV2/#/",
+  "homepage": "https://www.zedesign.online/",
   "dependencies": {
     "@react-google-maps/api": "^2.20.6",
     "@react-three/fiber": "^9.1.2",
