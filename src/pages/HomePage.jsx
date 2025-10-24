@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Voronoi? Voroknow? Voronothing?" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "Custom Domain" && git push origin main && npm run build && npm run deploy
 
