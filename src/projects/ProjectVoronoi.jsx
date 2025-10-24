@@ -753,7 +753,6 @@ export default function ProjectVoronoi() {
 
           {/* Hand-stippling GIF (first) */}
           <img
-            src={`${process.env.PUBLIC_URL}/HandStippling.gif`}
             alt="Hand stippling"
             className="intro-image"
             style={imgStyle}
