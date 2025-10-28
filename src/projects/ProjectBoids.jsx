@@ -515,10 +515,9 @@
 // ///////////////////////////////////////////////////////////////////////////////////////////
 
 // ProjectBoids.jsx
-// Anti-jitter turning version wired into your existing page structure.
-// - Sliders (Separation, Alignment, Cohesion, View distance, View angle) live under Run/Pause + Reset
-// - Starts paused, but renders one frame on load so canvas isn't blank
-// - Canvas refreshes on Reset, type +/- and slider changes even when paused
+// - No redraw on slider move while paused
+// - Reset / Type +/-: paused => single-frame repaint, running => continue running
+// - Sliders get complementary colors on focus/drag
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import HeaderBar from "../components/HeaderBar";
@@ -531,7 +530,6 @@ export default function ProjectBoids() {
   const diagramRef = useRef(null);
   const simRef = useRef(null);
 
-  // React state
   const [ui, setUI] = useState({
     separation: 0.85,
     alignment: 2.15,
@@ -540,84 +538,64 @@ export default function ProjectBoids() {
     viewAngle: 140,
   });
   const [types, setTypes] = useState(3);
+
   const [paused, setPaused] = useState(true);
-  const pausedRef = useRef(true); // mirrors paused, usable inside callbacks without stale closures
+  const pausedRef = useRef(true);
   const [counts, setCounts] = useState([]);
 
-  // Helper: render exactly one frame (works for paused or running)
+  // Draw exactly one frame (used for paused situations & first load)
   const renderOne = useCallback(() => {
     const sim = simRef.current;
     if (!sim) return;
     if (typeof sim.renderOnce === "function") {
       try {
         sim.renderOnce();
-      } catch (e) {
-        // no-op
-      }
+      } catch {}
     } else {
-      // Fallback: briefly resume, then pause next frame
+      // fallback single tick
       try {
         sim.resume();
         requestAnimationFrame(() => {
           try {
             sim.pause();
-          } catch (e) {
-            /* no-op */
-          }
+          } catch {}
         });
-      } catch (e) {
-        /* no-op */
-      }
+      } catch {}
     }
   }, []);
 
-  // Init simulation once
+  // Init once
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || simRef.current) return;
 
     const sim = initBoidSimulation(
       canvas,
-      // --- Engine constants (anti-jitter version) ---
       {
         numBoids: 220,
         boidRadius: 6,
-        // Calmer flight
         maxSpeed: 1.6,
         minSpeed: 0.7,
         flightMin: 1.05,
-
-        // Adaptive turning baseline
         baseTurn: 0.055,
         turnRefSpeed: 1.8,
-
-        // Anti-jitter yaw dynamics
         turnGain: 0.9,
         maxYawRate: 0.055,
         maxYawAcc: 0.02,
         yawFriction: 0.08,
         turnDeadband: 0.01,
         turnHysteresis: 0.45,
-
-        // Steering feel
         desireSmooth: 0.42,
         wanderStrength: 0.04,
-
-        // Accel/decel shaping
         maxDvUp: 0.006,
         maxDvDown: 0.025,
-
-        // Engine & gameplay
         maxForce: 0.06,
         drag: 0.002,
         conversionRadius: 10,
-
-        // Awareness beyond FOV
         preyAlertDist: 140,
         predPeripheralDist: 160,
         predPeripheralWeight: 0.45,
       },
-      // --- Live params ---
       {
         separation: ui.separation,
         alignment: ui.alignment,
@@ -631,20 +609,20 @@ export default function ProjectBoids() {
 
     simRef.current = sim;
 
-    // Size to container
     const handleResize = () => {
       const c = canvasRef.current;
       if (!c || !simRef.current) return;
       c.width = c.clientWidth;
       c.height = c.clientHeight;
       simRef.current.resize(c.width, c.height);
-      if (pausedRef.current) renderOne(); // show one frame if paused
+      // Only repaint when paused (running keeps animating)
+      if (pausedRef.current) renderOne();
     };
 
     window.addEventListener("resize", handleResize);
     handleResize();
 
-    // Start paused, but draw one frame so the canvas isn't empty
+    // Start paused, draw one frame
     sim.pause();
     pausedRef.current = true;
     renderOne();
@@ -655,9 +633,9 @@ export default function ProjectBoids() {
       simRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // init once
+  }, []);
 
-  // Push UI + types into the sim whenever they change.
+  // Push params to sim; no redraw on slider move
   useEffect(() => {
     simRef.current?.setParams({
       separation: ui.separation,
@@ -667,74 +645,41 @@ export default function ProjectBoids() {
       viewAngleDeg: ui.viewAngle,
       types,
     });
-    if (pausedRef.current) renderOne(); // immediate visual feedback while paused
-  }, [ui, types, renderOne]);
+  }, [ui, types]);
 
-  // Rock–paper–scissors diagram draw (depends on `types`)
+  // Diagram
   useEffect(() => {
     const canvas = diagramRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const n = Math.max(1, types);
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
     const radius = 100;
-    const angleStep = (2 * Math.PI) / n;
+    const step = (2 * Math.PI) / n;
 
-    const points = Array.from({ length: n }, (_, i) => {
-      const angle = i * angleStep - Math.PI / 2;
-      return {
-        x: centerX + radius * Math.cos(angle),
-        y: centerY + radius * Math.sin(angle),
-        color: `hsl(${(i * 360) / n}, 100%, 50%)`,
-      };
+    const pts = Array.from({ length: n }, (_, i) => {
+      const a = i * step - Math.PI / 2;
+      return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a), color: `hsl(${(i * 360) / n}, 100%, 50%)` };
     });
 
-    const drawArrow = (fromX, fromY, toX, toY, color) => {
-      const headlen = 10;
-      const dx = toX - fromX;
-      const dy = toY - fromY;
-      const angle = Math.atan2(dy, dx);
-
+    const arrow = (x1, y1, x2, y2, color) => {
+      const head = 10;
+      const dx = x2 - x1, dy = y2 - y1, ang = Math.atan2(dy, dx);
+      ctx.beginPath(); ctx.arc(x1, y1, 6, 0, 2 * Math.PI); ctx.fillStyle = color; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.stroke();
       ctx.beginPath();
-      ctx.arc(fromX, fromY, 6, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(fromX, fromY);
-      ctx.lineTo(toX, toY);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(toX, toY);
-      ctx.lineTo(
-        toX - headlen * Math.cos(angle - Math.PI / 6),
-        toY - headlen * Math.sin(angle - Math.PI / 6)
-      );
-      ctx.lineTo(
-        toX - headlen * Math.cos(angle + Math.PI / 6),
-        toY - headlen * Math.sin(angle + Math.PI / 6)
-      );
-      ctx.lineTo(toX, toY);
-      ctx.fillStyle = color;
-      ctx.fill();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - head * Math.cos(ang - Math.PI / 6), y2 - head * Math.sin(ang - Math.PI / 6));
+      ctx.lineTo(x2 - head * Math.cos(ang + Math.PI / 6), y2 - head * Math.sin(ang + Math.PI / 6));
+      ctx.lineTo(x2, y2);
+      ctx.fillStyle = color; ctx.fill();
     };
 
-    points.forEach((from, i) => {
-      ctx.beginPath();
-      ctx.arc(from.x, from.y, 6, 0, 2 * Math.PI);
-      ctx.fillStyle = from.color;
-      ctx.fill();
-
-      points.forEach((to, j) => {
-        if ((i - j + n) % n > n / 2) {
-          drawArrow(from.x, from.y, to.x, to.y, from.color);
-        }
-      });
+    pts.forEach((from, i) => {
+      ctx.beginPath(); ctx.arc(from.x, from.y, 6, 0, 2 * Math.PI); ctx.fillStyle = from.color; ctx.fill();
+      pts.forEach((to, j) => { if ((i - j + n) % n > n / 2) arrow(from.x, from.y, to.x, to.y, from.color); });
     });
   }, [types]);
 
@@ -752,78 +697,76 @@ export default function ProjectBoids() {
   };
 
   const resetSimulation = () => {
-    simRef.current?.reset(types);
-    if (pausedRef.current) renderOne();
+    const sim = simRef.current;
+    if (!sim) return;
+    sim.reset(types);
+    if (pausedRef.current) {
+      renderOne();        // paused => repaint single frame
+    } else {
+      sim.resume();       // running => continue immediately
+    }
   };
 
   const incrementTypes = () => {
     const t = Math.min(99, types + 1);
     setTypes(t);
-    simRef.current?.reset(t);
-    if (pausedRef.current) renderOne();
+    const sim = simRef.current;
+    if (!sim) return;
+    sim.reset(t);
+    if (pausedRef.current) {
+      renderOne();        // paused => repaint single frame
+    } else {
+      sim.resume();       // running => continue immediately
+    }
   };
 
   const decrementTypes = () => {
     const t = Math.max(1, types - 1);
     setTypes(t);
-    simRef.current?.reset(t);
-    if (pausedRef.current) renderOne();
+    const sim = simRef.current;
+    if (!sim) return;
+    sim.reset(t);
+    if (pausedRef.current) {
+      renderOne();        // paused => repaint single frame
+    } else {
+      sim.resume();       // running => continue immediately
+    }
   };
 
   // Leader bar
   const total = Math.max(1, counts.reduce((a, b) => a + b, 0));
   const maxIdx = counts.reduce((m, v, i, a) => (v > (a[m] || 0) ? i : m), 0);
   const leaderName = `Boid ${maxIdx + 1}`;
-  const typeColors = (i) => `hsl(${(i * 360) / Math.max(1, types)}, 100%, 50%)`;
+  const typeColor = (i) => `hsl(${(i * 360) / Math.max(1, types)}, 100%, 50%)`;
 
   return (
     <div className="project-wrapper">
       <HeaderBar />
       <main className="project-main">
-        {/* Intro section retained (GIFs/explanations) */}
+        {/* Intro (your original text kept verbatim) */}
         <div className="intro-section">
           <h1>Boids</h1>
           <p>
             This project was inspired by{" "}
-            <a
-              href="https://www.youtube.com/watch?v=iujUAB0c42c"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              a video
-            </a>{" "}
+            <a href="https://www.youtube.com/watch?v=iujUAB0c42c" target="_blank" rel="noopener noreferrer">a video</a>{" "}
             by Airapport.
-            <br />
-            <br />
+            <br /><br />
             Nature is full of mesmerizing patterns—flocks of birds sweeping
             through the sky, shoals of fish darting through the ocean, or swarms
             of insects moving like a single living cloud. These movements seem
             almost magical, but they’re often driven by a few simple rules
             followed which control how an individual reacts to their
             surroundings.
-            <br />
-            <br />
-            <img
-              src={`${process.env.PUBLIC_URL}/Swarm.gif`}
-              alt="Swarm simulation"
-              className="intro-image"
-            />
-            <br />
-            <br />
+            <br /><br />
+            <img src={`${process.env.PUBLIC_URL}/Swarm.gif`} alt="Swarm simulation" className="intro-image" />
+            <br /><br />
             That’s exactly what this simulation is based on. A{" "}
-            <a
-              href="https://en.wikipedia.org/wiki/Boids"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <strong>boid</strong>
-            </a>{" "}
+            <a href="https://en.wikipedia.org/wiki/Boids" target="_blank" rel="noopener noreferrer"><strong>boid</strong></a>{" "}
             (short for “bird-oid”) is a little virtual creature that mimics this
             natural group behavior. Each boid doesn't know what the whole flock
             is doing—it just looks around, responds to its nearby neighbors, and
             follows three core instincts.
-            <br />
-            <br />
+            <br /><br />
             <strong>Cohesion</strong>: Boids try to stay close to others of
             their species, much like fish do when grouping together for
             protection.
@@ -834,57 +777,34 @@ export default function ProjectBoids() {
             <strong>Alignment</strong>: They match direction with their nearby
             species so they all flow together and can capitalise on their
             numbers for both hunting prey and avoiding predators.
-            <br />
-            <br />
+            <br /><br />
             With just these three rules, boids start to behave like real animals
             in flowing flocks, gliding around obstacles, and even reacting to
             predators or prey.
-            <br />
-            <br />
+            <br /><br />
             That’s where the sliders below come in. They let you fine-tune how
             the boids behave:
-            <br />
-            <br />
+            <br /><br />
             • <strong>Cohesion</strong>, <strong>Alignment</strong>, and{" "}
             <strong>Separation</strong> adjust flocking strength per species.
             <br />• <strong>View Distance</strong> and <strong>View Angle</strong> shape their
             field of view.
-            <br />
-            <br />
+            <br /><br />
             Boids in this simulation move across what’s called a{" "}
-            <a
-              href="https://en.wikipedia.org/wiki/Toroid"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <strong>toroidal surface</strong>
-            </a>
-            , this is a looping world where the left edge connects to the right,
+            <a href="https://en.wikipedia.org/wiki/Toroid" target="_blank" rel="noopener noreferrer"><strong>toroidal surface</strong></a>,
+            this is a looping world where the left edge connects to the right,
             and the top to the bottom. It means no matter where a boid goes, it
             never hits a boundary, it just wraps around. Think of it like{" "}
-            <a
-              href="https://en.wikipedia.org/wiki/Pac-Man"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <strong>Pac-Man</strong>
-            </a>{" "}
+            <a href="https://en.wikipedia.org/wiki/Pac-Man" target="_blank" rel="noopener noreferrer"><strong>Pac-Man</strong></a>{" "}
             escaping out one side of the maze and reappearing on the other.
-            <br />
-            <br />
-            <img
-              src={`${process.env.PUBLIC_URL}/Pacman.gif`}
-              alt="Toroidal movement illustration with Pac-Man"
-              className="intro-image"
-            />
-            <br />
-            <br />
+            <br /><br />
+            <img src={`${process.env.PUBLIC_URL}/Pacman.gif`} alt="Toroidal movement illustration with Pac-Man" className="intro-image" />
+            <br /><br />
             Run the simulation below and tweak the sliders to watch the flock
             shift from calm to chaotic, from graceful to frantic. Even though
             each boid is following only local rules, the group behavior that
             emerges is surprisingly lifelike—and endlessly fun to explore.
-            <br />
-            <br />
+            <br /><br />
             Welcome to the flock 🐦
           </p>
         </div>
@@ -892,43 +812,13 @@ export default function ProjectBoids() {
         {/* Canvas + counts bar */}
         <div className="canvas-wrapper">
           <canvas ref={canvasRef} className="project-canvas" />
-          <div
-            style={{
-              position: "relative",
-              height: "20px",
-              display: "flex",
-              margin: "1rem 0",
-              border: "1px solid #ccc",
-              width: canvasRef.current?.clientWidth || "100%",
-              background: "#fff8",
-              backdropFilter: "blur(2px)",
-            }}
-          >
+          <div style={{ position: "relative", height: "20px", display: "flex", margin: "1rem 0", border: "1px solid #ccc", width: canvasRef.current?.clientWidth || "100%", background: "#fff8", backdropFilter: "blur(2px)" }}>
             {Array.from({ length: types }).map((_, i) => {
               const w = ((counts[i] || 0) / total) * 100;
               return (
-                <div
-                  key={i}
-                  style={{
-                    width: `${w}%`,
-                    backgroundColor: typeColors(i),
-                    position: "relative",
-                  }}
-                >
+                <div key={i} style={{ width: `${w}%`, backgroundColor: typeColor(i), position: "relative" }}>
                   {i === maxIdx && w > 8 && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "black",
-                        fontWeight: "bold",
-                        fontSize: "14px",
-                        textShadow: "1px 1px 2px white",
-                      }}
-                    >
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "black", fontWeight: "bold", fontSize: "14px", textShadow: "1px 1px 2px white" }}>
                       {leaderName}
                     </div>
                   )}
@@ -938,57 +828,19 @@ export default function ProjectBoids() {
           </div>
         </div>
 
-        {/* Sim controls */}
+        {/* Controls */}
         <div className="upload-buttons" style={{ marginBottom: "0.5rem" }}>
-          <button onClick={togglePause}>
-            {paused ? "Run Simulation" : "Pause Simulation"}
-          </button>
+          <button onClick={togglePause}>{paused ? "Run Simulation" : "Pause Simulation"}</button>
           <button onClick={resetSimulation}>Reset</button>
         </div>
 
-        {/* Sliders directly under controls */}
+        {/* Sliders (no redraw on change while paused) */}
         <div className="slider-stack" style={{ marginBottom: "1rem" }}>
-          <Range
-            label="Separation"
-            min={0}
-            max={3}
-            step={0.05}
-            value={ui.separation}
-            onChange={(v) => setUI((s) => ({ ...s, separation: v }))}
-          />
-          <Range
-            label="Alignment"
-            min={0}
-            max={3}
-            step={0.05}
-            value={ui.alignment}
-            onChange={(v) => setUI((s) => ({ ...s, alignment: v }))}
-          />
-          <Range
-            label="Cohesion"
-            min={0}
-            max={3}
-            step={0.05}
-            value={ui.cohesion}
-            onChange={(v) => setUI((s) => ({ ...s, cohesion: v }))}
-          />
-          <Range
-            label="View Distance"
-            min={30}
-            max={300}
-            step={1}
-            value={ui.viewDistance}
-            onChange={(v) => setUI((s) => ({ ...s, viewDistance: v }))}
-          />
-          <Range
-            label="View Angle"
-            min={20}
-            max={180}
-            step={1}
-            value={ui.viewAngle}
-            suffix="°"
-            onChange={(v) => setUI((s) => ({ ...s, viewAngle: v }))}
-          />
+          <Range label="Separation"   min={0}   max={3}   step={0.05} value={ui.separation} onChange={(v) => setUI((s) => ({ ...s, separation: v }))} />
+          <Range label="Alignment"    min={0}   max={3}   step={0.05} value={ui.alignment}  onChange={(v) => setUI((s) => ({ ...s, alignment:  v }))} />
+          <Range label="Cohesion"     min={0}   max={3}   step={0.05} value={ui.cohesion}   onChange={(v) => setUI((s) => ({ ...s, cohesion:   v }))} />
+          <Range label="View Distance" min={30} max={300} step={1}    value={ui.viewDistance} onChange={(v) => setUI((s) => ({ ...s, viewDistance: v }))} />
+          <Range label="View Angle"    min={20} max={180} step={1}    value={ui.viewAngle} suffix="°" onChange={(v) => setUI((s) => ({ ...s, viewAngle:   v }))} />
         </div>
 
         {/* Predator/Prey explanation (kept) */}
@@ -996,60 +848,29 @@ export default function ProjectBoids() {
           <p>
             The diagram below shows how different boid types interact in a cycle of
             predator and prey—kind of like a game of{" "}
-            <a
-              href="https://en.wikipedia.org/wiki/Rock_paper_scissors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              rock-paper-scissors
-            </a>
+            <a href="https://en.wikipedia.org/wiki/Rock_paper_scissors" target="_blank" rel="noopener noreferrer">rock-paper-scissors</a>
             ... or even{" "}
-            <a
-              href="https://en.wikipedia.org/wiki/Rock_paper_scissors#Rock-Paper-Scissors-Spock-Lizard"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              rock-paper-scissors-lizard-Spock
-            </a>
-            . Each boid can “hunt” some of the other boids and “be hunted” by
-            others, creating a loop of conversions. For example, if a boid from
-            type A touches the back of type B (its prey), it converts B into
-            another A. But if type B beats type C, and type C beats type A,
+            <a href="https://en.wikipedia.org/wiki/Rock_paper_scissors#Rock-Paper-Scissors-Spock-Lizard" target="_blank" rel="noopener noreferrer">rock-paper-scissors-lizard-Spock</a>.
+            Each boid can “hunt” some of the other boids and “be hunted” by others, creating a loop of conversions. For example, if a boid from
+            type A touches the back of type B (its prey), it converts B into another A. But if type B beats type C, and type C beats type A,
             you’ve got a loop!  
-            <br />
-            <br />
-            Using an <strong>odd number</strong> of species (3, 5, 7, …) yields
-             a decisive outcome: the cycle of advantages ensures one species
-              ultimately dominates. With an <strong>even number</strong> of
-               species (4, 6, 8, …), the interaction splits into pairs with no
-                clear superiority between them, so the system can stabilise with
-                 two surviving species instead of one.
+            <br /><br />
+            Using an <strong>odd number</strong> of species (3, 5, 7, …) yields a decisive outcome: the cycle of advantages ensures one species
+            ultimately dominates. With an <strong>even number</strong> of species (4, 6, 8, …), the interaction splits into pairs with no
+            clear superiority between them, so the system can stabilise with two surviving species instead of one.
           </p>
         </div>
 
         {/* Types controls + diagram */}
         <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <p>
-            Add or remove boid species (<strong>{types}</strong>):
-          </p>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "0.5rem",
-            }}
-          >
+          <p> Add or remove boid species (<strong>{types}</strong>): </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
             <button onClick={decrementTypes}>-</button>
             <button onClick={incrementTypes}>+</button>
           </div>
         </div>
 
-        <canvas
-          ref={diagramRef}
-          width={300}
-          height={300}
-          style={{ margin: "1rem auto", display: "block" }}
-        />
+        <canvas ref={diagramRef} width={300} height={300} style={{ margin: "1rem auto", display: "block" }} />
 
         <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
           <p>
@@ -1069,8 +890,20 @@ export default function ProjectBoids() {
   );
 }
 
-// Slider component
+// Slider with complementary colors on focus/drag, consistent width
 function Range({ label, min, max, step, value, onChange, suffix }) {
+  function handleFocus(e) {
+    const hue = Math.floor(Math.random() * 360);
+    const thumb = `hsl(${hue}, 100%, 50%)`;
+    const track = `hsl(${(hue + 180) % 360}, 100%, 50%)`;
+    e.target.style.setProperty("--thumb-color", thumb);
+    e.target.style.setProperty("--track-color", track);
+  }
+  function handleBlur(e) {
+    e.target.style.removeProperty("--thumb-color");
+    e.target.style.removeProperty("--track-color");
+  }
+
   return (
     <label
       className="slider-label"
@@ -1089,6 +922,11 @@ function Range({ label, min, max, step, value, onChange, suffix }) {
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        onPointerDown={handleFocus}
+        onPointerUp={handleBlur}
+        onTouchStart={handleFocus}
+        onTouchEnd={handleBlur}
+        onBlur={handleBlur}
         style={{ appearance: "none", width: "100%" }}
       />
       <span
