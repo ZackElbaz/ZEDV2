@@ -514,16 +514,9 @@
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////////
 
-// ProjectBoids.jsx
-// - No redraw on slider move while paused
-// - Reset / Type +/-: paused => single-frame repaint, running => continue running
-// - Sliders get complementary colors on focus/drag
-
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import HeaderBar from "../components/HeaderBar";
-import FooterBar from "../components/FooterBar";
+import ProjectTemplate from "../components/ProjectTemplate/ProjectTemplate";
 import { initBoidSimulation } from "./ProjectBoidsShader";
-import "./ProjectBoids.css";
 
 export default function ProjectBoids() {
   const canvasRef = useRef(null);
@@ -537,34 +530,23 @@ export default function ProjectBoids() {
     viewDistance: 120,
     viewAngle: 140,
   });
-  const [types, setTypes] = useState(3);
 
+  const [types, setTypes] = useState(3);
   const [paused, setPaused] = useState(true);
   const pausedRef = useRef(true);
   const [counts, setCounts] = useState([]);
 
-  // Draw exactly one frame (used for paused situations & first load)
   const renderOne = useCallback(() => {
     const sim = simRef.current;
     if (!sim) return;
+
     if (typeof sim.renderOnce === "function") {
       try {
         sim.renderOnce();
       } catch {}
-    } else {
-      // fallback single tick
-      try {
-        sim.resume();
-        requestAnimationFrame(() => {
-          try {
-            sim.pause();
-          } catch {}
-        });
-      } catch {}
     }
   }, []);
 
-  // Init once
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || simRef.current) return;
@@ -615,16 +597,15 @@ export default function ProjectBoids() {
       c.width = c.clientWidth;
       c.height = c.clientHeight;
       simRef.current.resize(c.width, c.height);
-      // Only repaint when paused (running keeps animating)
       if (pausedRef.current) renderOne();
     };
 
     window.addEventListener("resize", handleResize);
     handleResize();
 
-    // Start paused, draw one frame
     sim.pause();
     pausedRef.current = true;
+    setPaused(true);
     renderOne();
 
     return () => {
@@ -632,10 +613,8 @@ export default function ProjectBoids() {
       sim.stop();
       simRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [renderOne]);
 
-  // Push params to sim; no redraw on slider move
   useEffect(() => {
     simRef.current?.setParams({
       separation: ui.separation,
@@ -645,14 +624,19 @@ export default function ProjectBoids() {
       viewAngleDeg: ui.viewAngle,
       types,
     });
-  }, [ui, types]);
 
-  // Diagram
+    if (pausedRef.current) {
+      renderOne();
+    }
+  }, [ui, types, renderOne]);
+
   useEffect(() => {
     const canvas = diagramRef.current;
     if (!canvas) return;
+
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     const n = Math.max(1, types);
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
@@ -661,32 +645,70 @@ export default function ProjectBoids() {
 
     const pts = Array.from({ length: n }, (_, i) => {
       const a = i * step - Math.PI / 2;
-      return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a), color: `hsl(${(i * 360) / n}, 100%, 50%)` };
+      return {
+        x: cx + radius * Math.cos(a),
+        y: cy + radius * Math.sin(a),
+        color: `hsl(${(i * 360) / n}, 100%, 50%)`,
+      };
     });
 
     const arrow = (x1, y1, x2, y2, color) => {
       const head = 10;
-      const dx = x2 - x1, dy = y2 - y1, ang = Math.atan2(dy, dx);
-      ctx.beginPath(); ctx.arc(x1, y1, 6, 0, 2 * Math.PI); ctx.fillStyle = color; ctx.fill();
-      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.stroke();
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const ang = Math.atan2(dy, dx);
+
+      ctx.beginPath();
+      ctx.arc(x1, y1, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
       ctx.beginPath();
       ctx.moveTo(x2, y2);
-      ctx.lineTo(x2 - head * Math.cos(ang - Math.PI / 6), y2 - head * Math.sin(ang - Math.PI / 6));
-      ctx.lineTo(x2 - head * Math.cos(ang + Math.PI / 6), y2 - head * Math.sin(ang + Math.PI / 6));
+      ctx.lineTo(
+        x2 - head * Math.cos(ang - Math.PI / 6),
+        y2 - head * Math.sin(ang - Math.PI / 6)
+      );
+      ctx.lineTo(
+        x2 - head * Math.cos(ang + Math.PI / 6),
+        y2 - head * Math.sin(ang + Math.PI / 6)
+      );
       ctx.lineTo(x2, y2);
-      ctx.fillStyle = color; ctx.fill();
+      ctx.fillStyle = color;
+      ctx.fill();
     };
 
     pts.forEach((from, i) => {
-      ctx.beginPath(); ctx.arc(from.x, from.y, 6, 0, 2 * Math.PI); ctx.fillStyle = from.color; ctx.fill();
-      pts.forEach((to, j) => { if ((i - j + n) % n > n / 2) arrow(from.x, from.y, to.x, to.y, from.color); });
+      ctx.beginPath();
+      ctx.arc(from.x, from.y, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = from.color;
+      ctx.fill();
+
+      pts.forEach((to, j) => {
+        if ((i - j + n) % n > n / 2) {
+          arrow(from.x, from.y, to.x, to.y, from.color);
+        }
+      });
     });
   }, [types]);
 
-  // Controls
+  const forcePauseUi = () => {
+    simRef.current?.pause();
+    pausedRef.current = true;
+    setPaused(true);
+  };
+
   const togglePause = () => {
     const sim = simRef.current;
     if (!sim) return;
+
     setPaused((p) => {
       const next = !p;
       pausedRef.current = next;
@@ -699,180 +721,373 @@ export default function ProjectBoids() {
   const resetSimulation = () => {
     const sim = simRef.current;
     if (!sim) return;
+
     sim.reset(types);
     if (pausedRef.current) {
-      renderOne();        // paused => repaint single frame
+      renderOne();
     } else {
-      sim.resume();       // running => continue immediately
+      sim.resume();
     }
   };
 
   const incrementTypes = () => {
     const t = Math.min(99, types + 1);
     setTypes(t);
+
     const sim = simRef.current;
     if (!sim) return;
+
     sim.reset(t);
     if (pausedRef.current) {
-      renderOne();        // paused => repaint single frame
+      renderOne();
     } else {
-      sim.resume();       // running => continue immediately
+      sim.resume();
     }
   };
 
   const decrementTypes = () => {
     const t = Math.max(1, types - 1);
     setTypes(t);
+
     const sim = simRef.current;
     if (!sim) return;
+
     sim.reset(t);
     if (pausedRef.current) {
-      renderOne();        // paused => repaint single frame
+      renderOne();
     } else {
-      sim.resume();       // running => continue immediately
+      sim.resume();
     }
   };
 
-  // Leader bar
   const total = Math.max(1, counts.reduce((a, b) => a + b, 0));
   const maxIdx = counts.reduce((m, v, i, a) => (v > (a[m] || 0) ? i : m), 0);
   const leaderName = `Boid ${maxIdx + 1}`;
   const typeColor = (i) => `hsl(${(i * 360) / Math.max(1, types)}, 100%, 50%)`;
 
-  return (
-    <div className="project-wrapper">
-      <HeaderBar />
-      <main className="project-main">
-        {/* Intro (your original text kept verbatim) */}
-        <div className="intro-section">
-          <h1>Boids</h1>
-          <p>
-            This project was inspired by{" "}
-            <a href="https://www.youtube.com/watch?v=iujUAB0c42c" target="_blank" rel="noopener noreferrer">a video</a>{" "}
-            by Airapport.
-            <br /><br />
-            Nature is full of mesmerizing patterns—flocks of birds sweeping
-            through the sky, shoals of fish darting through the ocean, or swarms
-            of insects moving like a single living cloud. These movements seem
-            almost magical, but they’re often driven by a few simple rules
-            followed which control how an individual reacts to their
-            surroundings.
-            <br /><br />
-            <img src={`${process.env.PUBLIC_URL}/Swarm.gif`} alt="Swarm simulation" className="intro-image" />
-            <br /><br />
-            That’s exactly what this simulation is based on. A{" "}
-            <a href="https://en.wikipedia.org/wiki/Boids" target="_blank" rel="noopener noreferrer"><strong>boid</strong></a>{" "}
-            (short for “bird-oid”) is a little virtual creature that mimics this
-            natural group behavior. Each boid doesn't know what the whole flock
-            is doing—it just looks around, responds to its nearby neighbors, and
-            follows three core instincts.
-            <br /><br />
-            <strong>Cohesion</strong>: Boids try to stay close to others of
-            their species, much like fish do when grouping together for
-            protection.
-            <br />
-            <strong>Separation</strong>: They avoid getting too close to each
-            other, as no one wants to crash!
-            <br />
-            <strong>Alignment</strong>: They match direction with their nearby
-            species so they all flow together and can capitalise on their
-            numbers for both hunting prey and avoiding predators.
-            <br /><br />
-            With just these three rules, boids start to behave like real animals
-            in flowing flocks, gliding around obstacles, and even reacting to
-            predators or prey.
-            <br /><br />
-            That’s where the sliders below come in. They let you fine-tune how
-            the boids behave:
-            <br /><br />
-            • <strong>Cohesion</strong>, <strong>Alignment</strong>, and{" "}
-            <strong>Separation</strong> adjust flocking strength per species.
-            <br />• <strong>View Distance</strong> and <strong>View Angle</strong> shape their
-            field of view.
-            <br /><br />
-            Boids in this simulation move across what’s called a{" "}
-            <a href="https://en.wikipedia.org/wiki/Toroid" target="_blank" rel="noopener noreferrer"><strong>toroidal surface</strong></a>,
-            this is a looping world where the left edge connects to the right,
-            and the top to the bottom. It means no matter where a boid goes, it
-            never hits a boundary, it just wraps around. Think of it like{" "}
-            <a href="https://en.wikipedia.org/wiki/Pac-Man" target="_blank" rel="noopener noreferrer"><strong>Pac-Man</strong></a>{" "}
-            escaping out one side of the maze and reappearing on the other.
-            <br /><br />
-            <img src={`${process.env.PUBLIC_URL}/Pacman.gif`} alt="Toroidal movement illustration with Pac-Man" className="intro-image" />
-            <br /><br />
-            Run the simulation below and tweak the sliders to watch the flock
-            shift from calm to chaotic, from graceful to frantic. Even though
-            each boid is following only local rules, the group behavior that
-            emerges is surprisingly lifelike—and endlessly fun to explore.
-            <br /><br />
-            Welcome to the flock 🐦
-          </p>
-        </div>
+  const intro = [
+    {
+      type: "paragraph",
+      content: (
+        <>
+          This project was inspired by{" "}
+          <a
+            href="https://www.youtube.com/watch?v=iujUAB0c42c"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            a video
+          </a>{" "}
+          by Airapport.
+          <br />
+          <br />
+          Nature is full of mesmerizing patterns—flocks of birds sweeping
+          through the sky, shoals of fish darting through the ocean, or swarms
+          of insects moving like a single living cloud. These movements seem
+          almost magical, but they’re often driven by a few simple rules
+          followed which control how an individual reacts to their surroundings.
+        </>
+      ),
+    },
+    {
+      type: "media",
+      items: [
+        {
+          type: "image",
+          src: `${process.env.PUBLIC_URL}/Swarm.gif`,
+          alt: "Swarm simulation",
+        },
+      ],
+    },
+    {
+      type: "paragraph",
+      content: (
+        <>
+          That’s exactly what this simulation is based on. A{" "}
+          <a
+            href="https://en.wikipedia.org/wiki/Boids"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <strong>boid</strong>
+          </a>{" "}
+          (short for “bird-oid”) is a little virtual creature that mimics this
+          natural group behavior. Each boid doesn't know what the whole flock is
+          doing—it just looks around, responds to its nearby neighbors, and
+          follows three core instincts.
+          <br />
+          <br />
+          <strong>Cohesion</strong>: Boids try to stay close to others of their
+          species, much like fish do when grouping together for protection.
+          <br />
+          <strong>Separation</strong>: They avoid getting too close to each
+          other, as no one wants to crash!
+          <br />
+          <strong>Alignment</strong>: They match direction with their nearby
+          species so they all flow together and can capitalise on their numbers
+          for both hunting prey and avoiding predators.
+          <br />
+          <br />
+          With just these three rules, boids start to behave like real animals
+          in flowing flocks, gliding around obstacles, and even reacting to
+          predators or prey.
+          <br />
+          <br />
+          That’s where the sliders below come in. They let you fine-tune how the
+          boids behave:
+          <br />
+          <br />
+          • <strong>Cohesion</strong>, <strong>Alignment</strong>, and{" "}
+          <strong>Separation</strong> adjust flocking strength per species.
+          <br />
+          • <strong>View Distance</strong> and <strong>View Angle</strong> shape
+          their field of view.
+          <br />
+          <br />
+          Boids in this simulation move across what’s called a{" "}
+          <a
+            href="https://en.wikipedia.org/wiki/Toroid"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <strong>toroidal surface</strong>
+          </a>
+          , this is a looping world where the left edge connects to the right,
+          and the top to the bottom. It means no matter where a boid goes, it
+          never hits a boundary, it just wraps around. Think of it like{" "}
+          <a
+            href="https://en.wikipedia.org/wiki/Pac-Man"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <strong>Pac-Man</strong>
+          </a>{" "}
+          escaping out one side of the maze and reappearing on the other.
+        </>
+      ),
+    },
+    {
+      type: "media",
+      items: [
+        {
+          type: "image",
+          src: `${process.env.PUBLIC_URL}/Pacman.gif`,
+          alt: "Toroidal movement illustration with Pac-Man",
+        },
+      ],
+    },
+    {
+      type: "paragraph",
+      content: (
+        <>
+          Run the simulation below and tweak the sliders to watch the flock
+          shift from calm to chaotic, from graceful to frantic. Even though each
+          boid is following only local rules, the group behavior that emerges is
+          surprisingly lifelike—and endlessly fun to explore.
+          <br />
+          <br />
+          Welcome to the flock
+        </>
+      ),
+    },
+  ];
 
-        {/* Canvas + counts bar */}
-        <div className="canvas-wrapper">
-          <canvas ref={canvasRef} className="project-canvas" />
-          <div style={{ position: "relative", height: "20px", display: "flex", margin: "1rem 0", border: "1px solid #ccc", width: canvasRef.current?.clientWidth || "100%", background: "#fff8", backdropFilter: "blur(2px)" }}>
-            {Array.from({ length: types }).map((_, i) => {
-              const w = ((counts[i] || 0) / total) * 100;
-              return (
-                <div key={i} style={{ width: `${w}%`, backgroundColor: typeColor(i), position: "relative" }}>
-                  {i === maxIdx && w > 8 && (
-                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "black", fontWeight: "bold", fontSize: "14px", textShadow: "1px 1px 2px white" }}>
-                      {leaderName}
-                    </div>
-                  )}
+  const canvasBlock = (
+    <div className="template-canvas-shell">
+      <canvas ref={canvasRef} className="template-project-canvas" />
+      <div
+        style={{
+          position: "relative",
+          height: "20px",
+          display: "flex",
+          margin: "1rem 0",
+          border: "1px solid #ccc",
+          width: "100%",
+          background: "#fff8",
+          backdropFilter: "blur(2px)",
+        }}
+      >
+        {Array.from({ length: types }).map((_, i) => {
+          const w = ((counts[i] || 0) / total) * 100;
+          return (
+            <div
+              key={i}
+              style={{
+                width: `${w}%`,
+                backgroundColor: typeColor(i),
+                position: "relative",
+              }}
+            >
+              {i === maxIdx && w > 8 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "black",
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    textShadow: "1px 1px 2px white",
+                  }}
+                >
+                  {leaderName}
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-        {/* Controls */}
-        <div className="upload-buttons" style={{ marginBottom: "0.5rem" }}>
-          <button onClick={togglePause}>{paused ? "Run Simulation" : "Pause Simulation"}</button>
-          <button onClick={resetSimulation}>Reset</button>
-        </div>
+  const buttons = [
+    {
+      label: paused ? "Run Simulation" : "Pause Simulation",
+      onClick: togglePause,
+      active: !paused,
+    },
+    {
+      label: "Reset",
+      onClick: resetSimulation,
+    },
+  ];
 
-        {/* Sliders (no redraw on change while paused) */}
-        <div className="slider-stack" style={{ marginBottom: "1rem" }}>
-          <Range label="Separation"   min={0}   max={3}   step={0.05} value={ui.separation} onChange={(v) => setUI((s) => ({ ...s, separation: v }))} />
-          <Range label="Alignment"    min={0}   max={3}   step={0.05} value={ui.alignment}  onChange={(v) => setUI((s) => ({ ...s, alignment:  v }))} />
-          <Range label="Cohesion"     min={0}   max={3}   step={0.05} value={ui.cohesion}   onChange={(v) => setUI((s) => ({ ...s, cohesion:   v }))} />
-          <Range label="View Distance" min={30} max={300} step={1}    value={ui.viewDistance} onChange={(v) => setUI((s) => ({ ...s, viewDistance: v }))} />
-          <Range label="View Angle"    min={20} max={180} step={1}    value={ui.viewAngle} suffix="°" onChange={(v) => setUI((s) => ({ ...s, viewAngle:   v }))} />
-        </div>
+  const sliders = [
+    {
+      label: "Separation",
+      value: ui.separation,
+      min: 0,
+      max: 3,
+      step: 0.05,
+      onChange: (e) => {
+        forcePauseUi();
+        setUI((s) => ({ ...s, separation: parseFloat(e.target.value) }));
+      },
+      showValue: true,
+      formatValue: (v) => Number(v).toFixed(2),
+    },
+    {
+      label: "Alignment",
+      value: ui.alignment,
+      min: 0,
+      max: 3,
+      step: 0.05,
+      onChange: (e) => {
+        forcePauseUi();
+        setUI((s) => ({ ...s, alignment: parseFloat(e.target.value) }));
+      },
+      showValue: true,
+      formatValue: (v) => Number(v).toFixed(2),
+    },
+    {
+      label: "Cohesion",
+      value: ui.cohesion,
+      min: 0,
+      max: 3,
+      step: 0.05,
+      onChange: (e) => {
+        forcePauseUi();
+        setUI((s) => ({ ...s, cohesion: parseFloat(e.target.value) }));
+      },
+      showValue: true,
+      formatValue: (v) => Number(v).toFixed(2),
+    },
+    {
+      label: "View Distance",
+      value: ui.viewDistance,
+      min: 30,
+      max: 300,
+      step: 1,
+      onChange: (e) => {
+        forcePauseUi();
+        setUI((s) => ({ ...s, viewDistance: parseFloat(e.target.value) }));
+      },
+      showValue: true,
+      formatValue: (v) => Number(v).toFixed(0),
+    },
+    {
+      label: "View Angle",
+      value: ui.viewAngle,
+      min: 20,
+      max: 180,
+      step: 1,
+      onChange: (e) => {
+        forcePauseUi();
+        setUI((s) => ({ ...s, viewAngle: parseFloat(e.target.value) }));
+      },
+      showValue: true,
+      formatValue: (v) => `${Number(v).toFixed(0)}°`,
+    },
+  ];
 
-        {/* Predator/Prey explanation (kept) */}
-        <div className="intro-section">
+  const sections = [
+    {
+      paragraphs: [
+        <>
+          The diagram below shows how different boid types interact in a cycle
+          of predator and prey—kind of like a game of{" "}
+          <a
+            href="https://en.wikipedia.org/wiki/Rock_paper_scissors"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            rock-paper-scissors
+          </a>
+          ... or even{" "}
+          <a
+            href="https://en.wikipedia.org/wiki/Rock_paper_scissors#Rock-Paper-Scissors-Spock-Lizard"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            rock-paper-scissors-lizard-Spock
+          </a>
+          . Each boid can “hunt” some of the other boids and “be hunted” by
+          others, creating a loop of conversions. For example, if a boid from
+          type A touches the back of type B (its prey), it converts B into
+          another A. But if type B beats type C, and type C beats type A, you’ve
+          got a loop!
+          <br />
+          <br />
+          Using an <strong>odd number</strong> of species (3, 5, 7, …) yields a
+          decisive outcome: the cycle of advantages ensures one species
+          ultimately dominates. With an <strong>even number</strong> of species
+          (4, 6, 8, …), the interaction splits into pairs with no clear
+          superiority between them, so the system can stabilise with two
+          surviving species instead of one.
+        </>,
+      ],
+    },
+    {
+      custom: (
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
           <p>
-            The diagram below shows how different boid types interact in a cycle of
-            predator and prey—kind of like a game of{" "}
-            <a href="https://en.wikipedia.org/wiki/Rock_paper_scissors" target="_blank" rel="noopener noreferrer">rock-paper-scissors</a>
-            ... or even{" "}
-            <a href="https://en.wikipedia.org/wiki/Rock_paper_scissors#Rock-Paper-Scissors-Spock-Lizard" target="_blank" rel="noopener noreferrer">rock-paper-scissors-lizard-Spock</a>.
-            Each boid can “hunt” some of the other boids and “be hunted” by others, creating a loop of conversions. For example, if a boid from
-            type A touches the back of type B (its prey), it converts B into another A. But if type B beats type C, and type C beats type A,
-            you’ve got a loop!  
-            <br /><br />
-            Using an <strong>odd number</strong> of species (3, 5, 7, …) yields a decisive outcome: the cycle of advantages ensures one species
-            ultimately dominates. With an <strong>even number</strong> of species (4, 6, 8, …), the interaction splits into pairs with no
-            clear superiority between them, so the system can stabilise with two surviving species instead of one.
+            Add or remove boid species (<strong>{types}</strong>):
           </p>
-        </div>
-
-        {/* Types controls + diagram */}
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <p> Add or remove boid species (<strong>{types}</strong>): </p>
-          <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
-            <button onClick={decrementTypes}>-</button>
-            <button onClick={incrementTypes}>+</button>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "0.5rem",
+              marginBottom: "1rem",
+            }}
+          >
+            <button className="template-button" onClick={decrementTypes}>
+              -
+            </button>
+            <button className="template-button" onClick={incrementTypes}>
+              +
+            </button>
           </div>
-        </div>
 
-        <canvas ref={diagramRef} width={300} height={300} style={{ margin: "1rem auto", display: "block" }} />
+          <canvas
+            ref={diagramRef}
+            width={300}
+            height={300}
+            style={{ margin: "1rem auto", display: "block" }}
+          />
 
-        <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
           <p>
             Number of species: <strong>{types}</strong>
             <br />
@@ -884,66 +1099,18 @@ export default function ProjectBoids() {
             </strong>
           </p>
         </div>
-      </main>
-      <FooterBar />
-    </div>
-  );
-}
-
-// Slider with complementary colors on focus/drag, consistent width
-function Range({ label, min, max, step, value, onChange, suffix }) {
-  function handleFocus(e) {
-    const hue = Math.floor(Math.random() * 360);
-    const thumb = `hsl(${hue}, 100%, 50%)`;
-    const track = `hsl(${(hue + 180) % 360}, 100%, 50%)`;
-    e.target.style.setProperty("--thumb-color", thumb);
-    e.target.style.setProperty("--track-color", track);
-  }
-  function handleBlur(e) {
-    e.target.style.removeProperty("--thumb-color");
-    e.target.style.removeProperty("--track-color");
-  }
+      ),
+    },
+  ];
 
   return (
-    <label
-      className="slider-label"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "auto 1fr auto",
-        alignItems: "center",
-        gap: 8,
-      }}
-    >
-      <span>{label}</span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-        onPointerDown={handleFocus}
-        onPointerUp={handleBlur}
-        onTouchStart={handleFocus}
-        onTouchEnd={handleBlur}
-        onBlur={handleBlur}
-        style={{ appearance: "none", width: "100%" }}
-      />
-      <span
-        style={{
-          minWidth: 52,
-          textAlign: "right",
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {typeof value === "number"
-          ? step >= 1
-            ? value.toFixed(0)
-            : value.toFixed(2)
-          : value}
-        {suffix || ""}
-      </span>
-    </label>
+    <ProjectTemplate
+      title="Boids"
+      intro={intro}
+      canvasBlock={canvasBlock}
+      buttons={buttons}
+      sliders={sliders}
+      sections={sections}
+    />
   );
 }
-

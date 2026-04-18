@@ -509,6 +509,7 @@ export function initBoidSimulation(canvas, config, params, onCounts) {
     pause() { paused = true; },
     resume() { paused = false; },
     reset(nTypes) { params = { ...params, types: nTypes }; makeBoids(nTypes); },
+    renderOnce() { render(); },
     stop() { running = false; cancelAnimationFrame(rafId); },
   };
 }
