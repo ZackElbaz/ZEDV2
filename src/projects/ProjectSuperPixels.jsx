@@ -209,7 +209,7 @@ export default function ProjectSuperPixels() {
       setHasVideoSource(false);
       setVideoPaused(false);
     };
-    img.src = `${process.env.PUBLIC_URL}/AthenasRock.jpeg`;
+    img.src = `${process.env.PUBLIC_URL}/bailey-zindel-NRQV-hBF10M-unsplash.jpg`;
   }, []);
 
   useEffect(() => {
