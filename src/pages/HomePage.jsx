@@ -417,5 +417,5 @@ export default HomePage;
 
 // npm run build && npm run deploy
 
-// git add . && git commit -m "Uniformity update" && git push origin main && npm run build && npm run deploy
+// git add . && git commit -m "Super Ultra Mega Pixels" && git push origin main && npm run build && npm run deploy
 
